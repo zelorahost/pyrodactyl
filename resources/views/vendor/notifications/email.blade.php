@@ -140,7 +140,7 @@ $style = [
 
                                         <!-- Salutation -->
                                         <p style="{{ $style['paragraph'] }}">
-                                            Gracias por confiar en Zelora,<br>{{ config('app.name') }}
+                                            Gracias por confiar en Zelora,<br>Equipo de {{ config('app.name') }}
                                         </p>
 
                                         <!-- Sub Copy -->

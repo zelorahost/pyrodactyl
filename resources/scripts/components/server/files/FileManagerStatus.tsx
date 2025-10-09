@@ -58,7 +58,7 @@ const FileUploadList = () => {
                         onClick={cancelFileUpload.bind(this, name)}
                         className='hover:!text-red-400'
                     >
-                        Cancel
+                        Cancelar
                     </ActionButton>
                 </div>
             ))}

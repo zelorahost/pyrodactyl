@@ -41,7 +41,7 @@ class NetworkAllocationController extends ClientApiController
     }
 
     /**
-     * Set the primary allocation for a server.
+     * Set the notes for an allocation.
      *
      * @throws \Pterodactyl\Exceptions\Model\DataValidationException
      * @throws \Pterodactyl\Exceptions\Repository\RecordNotFoundException
@@ -85,14 +85,18 @@ class NetworkAllocationController extends ClientApiController
     }
 
     /**
-     * Set the notes for the allocation for a server.
+     * Create a new allocation for a server.
      *s.
      *
      * @throws DisplayException
      */
     public function store(NewAllocationRequest $request, Server $server): array
     {
-        if ($server->allocations()->count() >= $server->allocation_limit) {
+        if (!$server->allowsAllocations()) {
+            throw new DisplayException('Cannot assign allocations to this server: allocations are disabled.');
+        }
+
+        if ($server->hasAllocationLimit() && $server->allocations()->count() >= $server->allocation_limit) {
             throw new DisplayException('Cannot assign additional allocations to this server: limit has been reached.');
         }
 

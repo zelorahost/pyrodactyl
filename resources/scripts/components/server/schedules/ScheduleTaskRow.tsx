@@ -113,7 +113,7 @@ const ScheduleTaskRow = ({ schedule, task }: Props) => {
                 <div className='mr-0 sm:mr-6'>
                     {task.continueOnFailure && (
                         <div className={`px-2 py-1 bg-yellow-500 text-yellow-800 text-sm rounded-full`}>
-                            Continúa al fallar
+                            Continuar al fallar
                         </div>
                     )}
                     {task.sequenceId > 1 && task.timeOffset > 0 && (

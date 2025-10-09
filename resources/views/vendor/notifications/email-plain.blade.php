@@ -19,4 +19,4 @@ if (! empty($outroLines)) {
 }
 
 echo 'Gracias por confiar en Zelora,', "\n";
-echo config('app.name'), "\n";
+echo 'Equipo de ', config('app.name'), "\n";

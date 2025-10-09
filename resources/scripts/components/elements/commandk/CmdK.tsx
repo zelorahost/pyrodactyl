@@ -98,19 +98,19 @@ const CommandMenu = () => {
                     <Can action={'user.*'} matchAny>
                         <Command.Item onSelect={() => cmdkNavigate('/users')}>
                             <HugeIconsPeople fill='currentColor' />
-                            Users
+                            Usuarios
                         </Command.Item>
                     </Can>
                     <Can action={['startup.*']} matchAny>
                         <Command.Item onSelect={() => cmdkNavigate('/startup')}>
                             <HugeIconsConsole fill='currentColor' />
-                            Startup
+                            Inicio
                         </Command.Item>
                     </Can>
                     <Can action={['schedule.*']} matchAny>
                         <Command.Item onSelect={() => cmdkNavigate('/schedules')}>
                             <HugeIconsClock fill='currentColor' />
-                            Schedules
+                            Programas
                         </Command.Item>
                     </Can>
                     <Can action={['settings.*', 'file.sftp']} matchAny>
@@ -122,7 +122,7 @@ const CommandMenu = () => {
                     <Can action={['activity.*']} matchAny>
                         <Command.Item onSelect={() => cmdkNavigate('/activity')}>
                             <HugeIconsPencil fill='currentColor' />
-                            Activity
+                            Actividad
                         </Command.Item>
                     </Can>
                     <Can action={['modrinth.*']} matchAny>

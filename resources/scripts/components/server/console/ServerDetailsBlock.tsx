@@ -6,6 +6,8 @@ import { SocketEvent, SocketRequest } from '@/components/server/events';
 
 import { bytesToString, ip, mbToBytes } from '@/lib/formatters';
 
+import { SubdomainInfo, getSubdomainInfo } from '@/api/server/network/subdomain';
+
 import { ServerContext } from '@/state/server';
 
 import useWebsocketEvent from '@/plugins/useWebsocketEvent';
@@ -31,11 +33,14 @@ const Limit = ({ limit, children }: { limit: string | null; children: React.Reac
 
 const ServerDetailsBlock = ({ className }: { className?: string }) => {
     const [stats, setStats] = useState<Stats>({ memory: 0, cpu: 0, disk: 0, uptime: 0, tx: 0, rx: 0 });
+    const [subdomainInfo, setSubdomainInfo] = useState<SubdomainInfo | null>(null);
 
     const status = ServerContext.useStoreState((state) => state.status.value);
     const connected = ServerContext.useStoreState((state) => state.socket.connected);
     const instance = ServerContext.useStoreState((state) => state.socket.instance);
     const limits = ServerContext.useStoreState((state) => state.server.data!.limits);
+    const uuid = ServerContext.useStoreState((state) => state.server.data!.uuid);
+    const serverAllocations = ServerContext.useStoreState((state) => state.server.data!.allocations);
 
     const textLimits = useMemo(
         () => ({
@@ -51,6 +56,31 @@ const ServerDetailsBlock = ({ className }: { className?: string }) => {
 
         return !match ? 'n/a' : `${match.alias || ip(match.ip)}:${match.port}`;
     });
+
+    // Get display address (subdomain if available and active, otherwise IP)
+    const displayAddress = useMemo(() => {
+        if (
+            subdomainInfo?.current_subdomain?.attributes?.is_active &&
+            subdomainInfo.current_subdomain.attributes.full_domain
+        ) {
+            return subdomainInfo.current_subdomain.attributes.full_domain;
+        }
+        return allocation;
+    }, [subdomainInfo, allocation, serverAllocations]);
+
+    useEffect(() => {
+        const loadSubdomainInfo = async () => {
+            try {
+                const data = await getSubdomainInfo(uuid);
+                setSubdomainInfo(data);
+            } catch (error) {
+                // Silently fail - subdomain feature might not be available
+                setSubdomainInfo(null);
+            }
+        };
+
+        loadSubdomainInfo();
+    }, [uuid]);
 
     useEffect(() => {
         if (!connected || !instance) {
@@ -88,8 +118,8 @@ const ServerDetailsBlock = ({ className }: { className?: string }) => {
                         'linear(0,0.01,0.04 1.6%,0.161 3.3%,0.816 9.4%,1.046,1.189 14.4%,1.231,1.254 17%,1.259,1.257 18.6%,1.236,1.194 22.3%,1.057 27%,0.999 29.4%,0.955 32.1%,0.942,0.935 34.9%,0.933,0.939 38.4%,1 47.3%,1.011,1.017 52.6%,1.016 56.4%,1 65.2%,0.996 70.2%,1.001 87.2%,1)',
                 }}
             >
-                <StatBlock title={'Dirección IP'} copyOnClick={allocation}>
-                    {allocation}
+                <StatBlock title={'Dirección IP'} copyOnClick={displayAddress}>
+                    {displayAddress}
                 </StatBlock>
             </div>
             <div

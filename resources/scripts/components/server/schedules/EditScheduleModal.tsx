@@ -179,10 +179,15 @@ const EditScheduleModal = ({ schedule }: Props) => {
                     <div className={`grid grid-cols-2 sm:grid-cols-5 gap-4 mt-6`}>
                         <Field name={'minute'} label={'Minuto'} />
                         <Field name={'hour'} label={'Hora'} />
+                        <Field name={'dayOfWeek'} label={'Día de la semana'} />
                         <Field name={'dayOfMonth'} label={'Día del mes'} />
                         <Field name={'month'} label={'Mes'} />
-                        <Field name={'dayOfWeek'} label={'Día de la semana'} />
                     </div>
+
+                    <p className={`text-zinc-400 text-xs mt-2`}>
+                        El sistema de programas usa sintaxis Cronjob para definir cuándo se ejecutarán las tareas. Usa los
+                        campos superiores para configurar el horario.
+                    </p>
 
                     {timezoneInfo.isDifferent && (
                         <div className={'bg-blue-900/20 border border-blue-400/30 rounded-lg p-4 my-2'}>
@@ -228,11 +233,6 @@ const EditScheduleModal = ({ schedule }: Props) => {
                             </div>
                         </div>
                     )}
-
-                    <p className={`text-zinc-400 text-xs mt-2`}>
-                        El sistema de programas soporta la sintaxis de Cronjob para definir cuándo se ejecutarán
-                        las tareas. Usa los campos anteriores para especificar los tiempos del programa.
-                    </p>
 
                     <div className='gap-3 my-6 flex flex-col'>
                         <a href='https://crontab.guru/' target='_blank' rel='noreferrer'>

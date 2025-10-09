@@ -140,14 +140,10 @@ const FileManagerContainer = () => {
                         <p className={`text-sm text-zinc-400 text-center`}>Esta carpeta está vacía.</p>
                     ) : (
                         <>
-                            <div ref={parentRef} style={{ height: `calc(100vh - 194px)`, overflowY: 'scroll' }}>
+                            <div ref={parentRef}>
                                 <div
                                     data-pyro-file-manager-files
-                                    style={{
-                                        background:
-                                            'radial-gradient(124.75% 124.75% at 50.01% -10.55%, rgb(16, 16, 16) 0%, rgb(4, 4, 4) 100%)',
-                                    }}
-                                    className='p-1 border-[1px] border-[#ffffff12] rounded-xl ml-14 mr-12'
+                                    className='p-1 border-[1px] border-[#ffffff12] rounded-xl sm:ml-12 sm:mr-12 mx-2 bg-[radial-gradient(124.75%_124.75%_at_50.01%_-10.55%,_rgb(16,16,16)_0%,rgb(4,4,4)_100%)]'
                                 >
                                     <div className='relative w-full h-full mb-1'>
                                         <svg
@@ -173,44 +169,22 @@ const FileManagerContainer = () => {
                                             onChange={(event) => debouncedSearchTerm(event.target.value)}
                                         />
                                     </div>
-                                    <For
-                                        each={rowVirtualizer.getVirtualItems()}
-                                        style={{
-                                            height: `${rowVirtualizer.getTotalSize()}px`,
-                                            width: '100%',
-                                            overflow: 'hidden',
-                                            borderRadius: '0.5rem',
-                                            position: 'relative',
-                                        }}
-                                        as='div'
-                                        memo
-                                    >
-                                        {(virtualItem) => {
-                                            if (filesArray[virtualItem.index] !== undefined) {
+                                    <div className='w-full overflow-hidden rounded-lg gap-0.5 flex flex-col'>
+                                        {rowVirtualizer.getVirtualItems().map((item) => {
+                                            if (filesArray[item.index] !== undefined) {
                                                 return (
-                                                    <div
-                                                        key={virtualItem.key}
-                                                        style={{
-                                                            position: 'absolute',
-                                                            top: 0,
-                                                            left: 0,
-                                                            height: `${virtualItem.size}px`,
-                                                            width: '100%',
-                                                            paddingBottom: '1px',
-                                                            transform: `translateY(${virtualItem.start}px)`,
-                                                        }}
-                                                    >
+                                                    <div key={item.key} className='w-full'>
                                                         <FileObjectRow
                                                             // @ts-expect-error - Legacy type suppression
-                                                            file={filesArray[virtualItem.index]}
-                                                            key={filesArray[virtualItem.index]?.name}
+                                                            file={filesArray[item.index]}
+                                                            key={filesArray[item.index]?.name}
                                                         />
                                                     </div>
                                                 );
                                             }
                                             return <></>;
-                                        }}
-                                    </For>
+                                        })}
+                                    </div>
                                 </div>
                             </div>
                             <MassActionsBar />

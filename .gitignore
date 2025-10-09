@@ -1,4 +1,9 @@
 /vendor
+
+# Elytra binary
+elytra
+!elytra/
+
 *.DS_Store*
 !.env.ci
 !.env.example
@@ -22,6 +27,7 @@ docker-compose.yml
 local_docker
 /srv
 /var
+/data
 
 # for image related files
 misc

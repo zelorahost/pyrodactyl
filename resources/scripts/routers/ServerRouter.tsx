@@ -42,6 +42,7 @@ import WebsocketHandler from '@/components/server/WebsocketHandler';
 
 import { httpErrorToHuman } from '@/api/http';
 import http from '@/api/http';
+import { SubdomainInfo, getSubdomainInfo } from '@/api/server/network/subdomain';
 
 import { ServerContext } from '@/state/server';
 
@@ -50,15 +51,15 @@ const blank_egg_prefix = '@';
 // Sidebar item components that check both permissions and feature limits
 const DatabasesSidebarItem = React.forwardRef<HTMLAnchorElement, { id: string; onClick: () => void }>(
     ({ id, onClick }, ref) => {
-        const databaseLimit = ServerContext.useStoreState((state) => state.server.data?.featureLimits.databases ?? 0);
+        const databaseLimit = ServerContext.useStoreState((state) => state.server.data?.featureLimits.databases);
 
-        // Hide if no database access (limit is 0)
+        // Hide if databases are disabled (limit is 0)
         if (databaseLimit === 0) return null;
 
         return (
             <Can action={'database.*'} matchAny>
                 <NavLink
-                    className='flex flex-row items-center transition-colors duration-200 hover:bg-[#ffffff11] rounded-md'
+                    className='flex flex-row items-center transition-colors duration-200 hover:bg-white/10 rounded-md'
                     ref={ref}
                     to={`/server/${id}/databases`}
                     onClick={onClick}
@@ -75,9 +76,9 @@ DatabasesSidebarItem.displayName = 'DatabasesSidebarItem';
 
 const BackupsSidebarItem = React.forwardRef<HTMLAnchorElement, { id: string; onClick: () => void }>(
     ({ id, onClick }, ref) => {
-        const backupLimit = ServerContext.useStoreState((state) => state.server.data?.featureLimits.backups ?? 0);
+        const backupLimit = ServerContext.useStoreState((state) => state.server.data?.featureLimits.backups);
 
-        // Hide if no backup access (limit is 0)
+        // Hide if backups are disabled (limit is 0)
         if (backupLimit === 0) return null;
 
         return (
@@ -100,12 +101,29 @@ BackupsSidebarItem.displayName = 'BackupsSidebarItem';
 
 const NetworkingSidebarItem = React.forwardRef<HTMLAnchorElement, { id: string; onClick: () => void }>(
     ({ id, onClick }, ref) => {
+        const [subdomainSupported, setSubdomainSupported] = useState(false);
         const allocationLimit = ServerContext.useStoreState(
             (state) => state.server.data?.featureLimits.allocations ?? 0,
         );
+        const uuid = ServerContext.useStoreState((state) => state.server.data?.uuid);
 
-        // Hide if no allocation access (limit is 0)
-        if (allocationLimit === 0) return null;
+        useEffect(() => {
+            const checkSubdomainSupport = async () => {
+                try {
+                    if (uuid) {
+                        const data = await getSubdomainInfo(uuid);
+                        setSubdomainSupported(data.supported);
+                    }
+                } catch (error) {
+                    setSubdomainSupported(false);
+                }
+            };
+
+            checkSubdomainSupport();
+        }, [uuid]);
+
+        // Show if either allocations are available OR subdomains are supported
+        if (allocationLimit === 0 && !subdomainSupported) return null;
 
         return (
             <Can action={'allocation.*'} matchAny>
@@ -138,6 +156,7 @@ const ServerRouter = () => {
 
     const rootAdmin = useStoreState((state) => state.user.data!.rootAdmin);
     const [error, setError] = useState('');
+    const [subdomainSupported, setSubdomainSupported] = useState(false);
 
     const id = ServerContext.useStoreState((state) => state.server.data?.id);
     const uuid = ServerContext.useStoreState((state) => state.server.data?.uuid);
@@ -146,9 +165,9 @@ const ServerRouter = () => {
     const getServer = ServerContext.useStoreActions((actions) => actions.server.getServer);
     const clearServerState = ServerContext.useStoreActions((actions) => actions.clearServerState);
     const egg_id = ServerContext.useStoreState((state) => state.server.data?.egg);
-    const databaseLimit = ServerContext.useStoreState((state) => state.server.data?.featureLimits.databases ?? 0);
-    const backupLimit = ServerContext.useStoreState((state) => state.server.data?.featureLimits.backups ?? 0);
-    const allocationLimit = ServerContext.useStoreState((state) => state.server.data?.featureLimits.allocations ?? 0);
+    const databaseLimit = ServerContext.useStoreState((state) => state.server.data?.featureLimits.databases);
+    const backupLimit = ServerContext.useStoreState((state) => state.server.data?.featureLimits.backups);
+    const allocationLimit = ServerContext.useStoreState((state) => state.server.data?.featureLimits.allocations);
 
     // Mobile menu state
     const [isMobileMenuVisible, setMobileMenuVisible] = useState(false);
@@ -195,6 +214,23 @@ const ServerRouter = () => {
             clearServerState();
         };
     }, [params.id]);
+
+    useEffect(() => {
+        const checkSubdomainSupport = async () => {
+            try {
+                if (uuid) {
+                    const data = await getSubdomainInfo(uuid);
+                    setSubdomainSupported(data.supported);
+                }
+            } catch (error) {
+                setSubdomainSupported(false);
+            }
+        };
+
+        if (uuid) {
+            checkSubdomainSupport();
+        }
+    }, [uuid]);
 
     // Define refs for navigation buttons.
     const NavigationHome = useRef(null);
@@ -297,6 +333,7 @@ const ServerRouter = () => {
                         databaseLimit={databaseLimit}
                         backupLimit={backupLimit}
                         allocationLimit={allocationLimit}
+                        subdomainSupported={subdomainSupported}
                     />
 
                     <div className='flex flex-row w-full lg:pt-0 pt-16'>

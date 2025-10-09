@@ -42,7 +42,8 @@ use Pterodactyl\Exceptions\Http\Server\ServerStateConflictException;
  * @property string $image
  * @property int|null $allocation_limit
  * @property int|null $database_limit
- * @property int $backup_limit
+ * @property int|null $backup_limit
+ * @property int|null $backup_storage_limit
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $installed_at
@@ -173,9 +174,10 @@ class Server extends Model
         'startup' => 'required|string',
         'skip_scripts' => 'sometimes|boolean',
         'image' => ['required', 'string', 'max:191', 'regex:/^~?[\w\.\/\-:@ ]*$/'],
-        'database_limit' => 'present|nullable|integer|min:0',
-        'allocation_limit' => 'sometimes|nullable|integer|min:0',
-        'backup_limit' => 'present|nullable|integer|min:0',
+        'database_limit' => 'nullable|integer|min:0',
+        'allocation_limit' => 'nullable|integer|min:0',
+        'backup_limit' => 'nullable|integer|min:0',
+        'backup_storage_limit' => 'nullable|integer|min:0',
     ];
 
     /**
@@ -199,6 +201,7 @@ class Server extends Model
         'database_limit' => 'integer',
         'allocation_limit' => 'integer',
         'backup_limit' => 'integer',
+        'backup_storage_limit' => 'integer',
         self::CREATED_AT => 'datetime',
         self::UPDATED_AT => 'datetime',
         'deleted_at' => 'datetime',
@@ -373,6 +376,56 @@ class Server extends Model
     }
 
     /**
+     * Check if this server has a backup storage limit configured.
+     */
+    public function hasBackupStorageLimit(): bool
+    {
+        return !is_null($this->backup_storage_limit) && $this->backup_storage_limit > 0;
+    }
+
+    /**
+     * Get the backup storage limit in bytes.
+     */
+    public function getBackupStorageLimitBytes(): ?int
+    {
+        if (!$this->hasBackupStorageLimit()) {
+            return null;
+        }
+
+        return (int) ($this->backup_storage_limit * 1024 * 1024);
+    }
+
+    public function hasBackupCountLimit(): bool
+    {
+        return !is_null($this->backup_limit) && $this->backup_limit > 0;
+    }
+
+    public function allowsBackups(): bool
+    {
+        return is_null($this->backup_limit) || $this->backup_limit > 0;
+    }
+
+    public function hasDatabaseLimit(): bool
+    {
+        return !is_null($this->database_limit) && $this->database_limit > 0;
+    }
+
+    public function allowsDatabases(): bool
+    {
+        return is_null($this->database_limit) || $this->database_limit > 0;
+    }
+
+    public function hasAllocationLimit(): bool
+    {
+        return !is_null($this->allocation_limit) && $this->allocation_limit > 0;
+    }
+
+    public function allowsAllocations(): bool
+    {
+        return is_null($this->allocation_limit) || $this->allocation_limit > 0;
+    }
+
+    /**
      * Returns all mounts that have this server has mounted.
      */
     public function mounts(): HasManyThrough
@@ -386,6 +439,82 @@ class Server extends Model
     public function activity(): MorphToMany
     {
         return $this->morphToMany(ActivityLog::class, 'subject', 'activity_log_subjects');
+    }
+
+    /**
+     * Gets all subdomains associated with this server.
+     */
+    public function subdomains(): HasMany
+    {
+        return $this->hasMany(ServerSubdomain::class);
+    }
+
+    /**
+     * Gets the active subdomain for this server.
+     */
+    public function activeSubdomain(): HasOne
+    {
+        return $this->hasOne(ServerSubdomain::class)->where('is_active', true);
+    }
+
+    /**
+     * Check if this server supports subdomains based on its egg features.
+     */
+    public function supportsSubdomains(): bool
+    {
+        if (!$this->egg) {
+            return false;
+        }
+
+        // Check direct features
+        if (is_array($this->egg->features)) {
+            foreach ($this->egg->features as $feature) {
+                if (str_starts_with($feature, 'subdomain_')) {
+                    return true;
+                }
+            }
+        }
+
+        // Check inherited features
+        if (is_array($this->egg->inherit_features)) {
+            foreach ($this->egg->inherit_features as $feature) {
+                if (str_starts_with($feature, 'subdomain_')) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Get the subdomain feature type for this server.
+     */
+    public function getSubdomainFeature(): ?string
+    {
+        if (!$this->egg) {
+            return null;
+        }
+
+        // Check direct features
+        if (is_array($this->egg->features)) {
+            foreach ($this->egg->features as $feature) {
+                if (str_starts_with($feature, 'subdomain_')) {
+                    return $feature;
+                }
+            }
+        }
+
+        // Check inherited features
+        if (is_array($this->egg->inherit_features)) {
+            foreach ($this->egg->inherit_features as $feature) {
+                if (str_starts_with($feature, 'subdomain_')) {
+                    return $feature;
+                }
+            }
+        }
+
+        return null;
     }
 
     /**

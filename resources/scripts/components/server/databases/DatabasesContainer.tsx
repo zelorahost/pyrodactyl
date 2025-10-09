@@ -30,14 +30,14 @@ interface DatabaseValues {
 
 const databaseSchema = object().shape({
     databaseName: string()
-        .required('A database name must be provided.')
-        .min(3, 'Database name must be at least 3 characters.')
-        .max(48, 'Database name must not exceed 48 characters.')
+        .required('Debes indicar el nombre de la base de datos.')
+        .min(3, 'El nombre debe contener al menos 3 caracteres.')
+        .max(48, 'El nombre no puede exceder los 48 caracteres.')
         .matches(
             /^[\w\-.]{3,48}$/,
-            'Database name should only contain alphanumeric characters, underscores, dashes, and/or periods.',
+            'El nombre de la base de datos solo puede contener caracteres alfanuméricos, guiones o guiones bajos y/o puntos.',
         ),
-    connectionsFrom: string().matches(/^[\w\-/.%:]+$/, 'A valid host address must be provided.'),
+    connectionsFrom: string().matches(/^[\w\-/.%:]+$/, 'Debes indicar una dirección válida.'),
 });
 
 const DatabasesContainer = () => {
@@ -92,12 +92,22 @@ const DatabasesContainer = () => {
                 titleChildren={
                     <Can action={'database.create'}>
                         <div className='flex flex-col sm:flex-row items-center justify-end gap-4'>
+                            {databaseLimit === null && (
+                                <p className='text-sm text-zinc-300 text-center sm:text-right'>
+                                    {databases.length} bases de datos (ilimitadas)
+                                </p>
+                            )}
                             {databaseLimit > 0 && (
                                 <p className='text-sm text-zinc-300 text-center sm:text-right'>
                                     {databases.length} de {databaseLimit} bases de datos
                                 </p>
                             )}
-                            {databaseLimit > 0 && databaseLimit !== databases.length && (
+                            {databaseLimit === 0 && (
+                                <p className='text-sm text-red-400 text-center sm:text-right'>
+                                    Bases de datos desactivadas
+                                </p>
+                            )}
+                            {(databaseLimit === null || (databaseLimit > 0 && databaseLimit !== databases.length)) && ( 
                                 <ActionButton variant='primary' onClick={() => setCreateModalVisible(true)}>
                                     Nueva base de datos
                                 </ActionButton>
@@ -177,12 +187,12 @@ const DatabasesContainer = () => {
                             <HugeIconsDatabase className='w-8 h-8 text-zinc-400' fill='currentColor' />
                         </div>
                         <h3 className='text-lg font-medium text-zinc-200 mb-2'>
-                            {databaseLimit > 0 ? 'No hay bases de datos' : 'Bases de datos no disponibles'}
+                            {databaseLimit === 0 ? 'No disponible' : 'No hay bases de datos'}
                         </h3>
                         <p className='text-sm text-zinc-400 max-w-sm'>
-                            {databaseLimit > 0
-                                ? 'Tu servidor no tiene ninguna base de datos.'
-                                : 'No se pueden crear bases de datos para este servidor.'}
+                            {databaseLimit === 0
+                                ? 'No se pueden crear bases de datos para este servidor.'
+                                : 'Tu servidor no tiene ninguna base de datos.'}
                         </p>
                     </div>
                 </div>

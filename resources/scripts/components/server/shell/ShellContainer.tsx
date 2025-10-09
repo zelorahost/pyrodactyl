@@ -270,7 +270,7 @@ const SoftwareContainer = () => {
         return foundNest?.attributes?.relationships?.eggs?.data?.find((egg) => egg?.attributes?.uuid === currentEgg)
             ?.attributes?.name;
     }, [nests, currentEgg]);
-    const backupLimit = serverData?.featureLimits.backups ?? 0;
+    const backupLimit = serverData?.featureLimits.backups;
     const { data: backups } = getServerBackups();
     const setServerFromState = ServerContext.useStoreActions((actions) => actions.server.setServerFromState);
 
@@ -287,6 +287,7 @@ const SoftwareContainer = () => {
     const [showWipeConfirmation, setShowWipeConfirmation] = useState(false);
     const [wipeCountdown, setWipeCountdown] = useState(5);
     const [wipeLoading, setWipeLoading] = useState(false);
+    const [shiftPressed, setShiftPressed] = useState(false);
 
     // Configuration options
     const [shouldBackup, setShouldBackup] = useState(false);
@@ -333,7 +334,8 @@ const SoftwareContainer = () => {
     // Initialize backup setting based on limits
     useEffect(() => {
         if (backups) {
-            setShouldBackup(backupLimit > 0 && backups.backupCount < backupLimit);
+            // null = unlimited, 0 = disabled, positive number = cap
+            setShouldBackup(backupLimit !== 0 && (backupLimit === null || backups.backupCount < backupLimit));
         }
     }, [backups, backupLimit]);
 
@@ -357,6 +359,24 @@ const SoftwareContainer = () => {
         }
     }, [showWipeConfirmation]);
 
+    const handleKeyDown = (event) => {
+        if (event.shiftKey) setShiftPressed(true);
+    };
+
+    const handleKeyUp = (event) => {
+        if (!event.shiftKey) setShiftPressed(false);
+    };
+
+    useEffect(() => {
+        document.addEventListener('keydown', handleKeyDown);
+        document.addEventListener('keyup', handleKeyUp);
+
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+            document.removeEventListener('keyup', handleKeyUp);
+        };
+    });
+
     // Flow control functions
     const resetFlow = () => {
         setCurrentStep('overview');
@@ -365,7 +385,7 @@ const SoftwareContainer = () => {
         setEggPreview(null);
         setPendingVariables({});
         setVariableErrors({});
-        setShouldBackup(backupLimit > 0 && (backups?.backupCount || 0) < backupLimit);
+        setShouldBackup(backupLimit !== 0 && (backupLimit === null || (backups?.backupCount || 0) < backupLimit));
         setShouldWipe(false);
         setCustomStartup('');
         setSelectedDockerImage('');
@@ -391,6 +411,17 @@ const SoftwareContainer = () => {
         try {
             const preview = await previewEggChange(uuid, egg.attributes.id, selectedNest.attributes.id);
             setEggPreview(preview);
+
+            // Check for subdomain compatibility warnings
+            if (preview.warnings && preview.warnings.length > 0) {
+                const subdomainWarning = preview.warnings.find((w) => w.type === 'subdomain_incompatible');
+                if (subdomainWarning) {
+                    toast.error(subdomainWarning.message, {
+                        duration: 8000,
+                        dismissible: true,
+                    });
+                }
+            }
 
             // Initialize variables with current values or defaults
             const initialVariables: Record<string, string> = {};
@@ -897,16 +928,18 @@ const SoftwareContainer = () => {
                                             Crear copia
                                         </label>
                                         <p className='text-xs text-neutral-400 leading-relaxed'>
-                                            {backupLimit > 0 && (backups?.backupCount || 0) < backupLimit
-                                                ? 'Crear una copia de seguridad antes de aplicar los cambios'
-                                                : 'Se ha alcanzado el límite de copias'}
+                                            {backupLimit !== 0 && (backupLimit === null || (backups?.backupCount || 0) < backupLimit)
+                                                ? 'Crear una copia automáticamente antes de aplicar los cambios'
+                                                : backupLimit === 0
+                                                    ? 'Las copias están desactivadas en este servidor'
+                                                    : 'El servidor ha alcanzado el límite de copias'}
                                         </p>
                                     </div>
                                     <div className='flex-shrink-0'>
                                         <Switch
                                             checked={shouldBackup}
                                             onCheckedChange={setShouldBackup}
-                                            disabled={backupLimit <= 0 || (backups?.backupCount || 0) >= backupLimit}
+                                            disabled={backupLimit === 0 || (backupLimit !== null && (backups?.backupCount || 0) >= backupLimit)}
                                         />
                                     </div>
                                 </div>
@@ -1048,7 +1081,44 @@ const SoftwareContainer = () => {
                             </div>
                         </div>
 
-                        {/* Warning */}
+                        {/* Subdomain Warnings */}
+                        {eggPreview.warnings && eggPreview.warnings.length > 0 && (
+                            <div className='space-y-3'>
+                                {eggPreview.warnings.map((warning, index) => (
+                                    <div
+                                        key={index}
+                                        className={`p-4 border rounded-lg ${
+                                            warning.severity === 'error'
+                                                ? 'bg-red-500/10 border-red-500/20'
+                                                : 'bg-amber-500/10 border-amber-500/20'
+                                        }`}
+                                    >
+                                        <div className='flex items-start gap-3'>
+                                            <HugeIconsAlert
+                                                fill='currentColor'
+                                                className={`w-5 h-5 flex-shrink-0 mt-0.5 ${
+                                                    warning.severity === 'error' ? 'text-red-400' : 'text-amber-400'
+                                                }`}
+                                            />
+                                            <div>
+                                                <h4
+                                                    className={`font-semibold mb-2 ${
+                                                        warning.severity === 'error' ? 'text-red-400' : 'text-amber-400'
+                                                    }`}
+                                                >
+                                                    {warning.type === 'subdomain_incompatible'
+                                                        ? 'Subdomain Will Be Deleted'
+                                                        : 'Warning'}
+                                                </h4>
+                                                <p className='text-sm text-neutral-300'>{warning.message}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        {/* General Warning */}
                         <div className='p-4 bg-amber-500/10 border border-amber-500/20 rounded-lg'>
                             <div className='flex items-start gap-3'>
                                 <HugeIconsAlert
@@ -1063,6 +1133,9 @@ const SoftwareContainer = () => {
                                         <li>• Los archivos podrían ser modificados o eliminados durante el proceso</li>
                                         <li>• Asegúrate de tener una copia de seguridad</li>
                                     </ul>
+                                    <span className='text-sm font-bold mt-4'>
+                                        Please ensure you have backups of important data before proceeding.
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -1155,7 +1228,7 @@ const SoftwareContainer = () => {
                 visible={showWipeConfirmation}
                 onConfirmed={handleWipeConfirm}
                 onModalDismissed={() => setShowWipeConfirmation(false)}
-                disabled={wipeCountdown > 0}
+                disabled={wipeCountdown > 0 && !shiftPressed}
                 loading={wipeLoading}
             >
                 <div className='space-y-4'>

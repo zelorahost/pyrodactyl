@@ -107,6 +107,14 @@ class BackupManager
     }
 
     /**
+     * Creates a new Elytra adapter.
+     */
+    public function createElytraAdapter(array $config): FilesystemAdapter
+    {
+        return new InMemoryFilesystemAdapter();
+    }
+
+    /**
      * Creates a new S3 adapter.
      */
     public function createS3Adapter(array $config): FilesystemAdapter
@@ -120,6 +128,26 @@ class BackupManager
         $client = new S3Client($config);
 
         return new S3Filesystem($client, $config['bucket'], $config['prefix'] ?? '', $config['options'] ?? []);
+    }
+
+    /**
+     * Creates a new Rustic Local adapter.
+     * Rustic adapters don't use traditional filesystem operations - they are handled by Wings directly.
+     */
+    public function createRusticLocalAdapter(array $config): FilesystemAdapter
+    {
+        // Return a minimal adapter since rustic operations are handled by Wings
+        return new InMemoryFilesystemAdapter();
+    }
+
+    /**
+     * Creates a new Rustic S3 adapter.
+     * Rustic adapters don't use traditional filesystem operations - they are handled by Wings directly.
+     */
+    public function createRusticS3Adapter(array $config): FilesystemAdapter
+    {
+        // Return a minimal adapter since rustic operations are handled by Wings
+        return new InMemoryFilesystemAdapter();
     }
 
     /**

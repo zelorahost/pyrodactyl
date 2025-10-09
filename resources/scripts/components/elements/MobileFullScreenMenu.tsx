@@ -104,18 +104,20 @@ interface ServerMobileMenuProps {
     isVisible: boolean;
     onClose: () => void;
     serverId?: string;
-    databaseLimit?: number;
-    backupLimit?: number;
-    allocationLimit?: number;
+    databaseLimit?: number | null;
+    backupLimit?: number | null;
+    allocationLimit?: number | null;
+    subdomainSupported?: boolean;
 }
 
 export const ServerMobileMenu = ({
     isVisible,
     onClose,
     serverId,
-    databaseLimit = 0,
-    backupLimit = 0,
-    allocationLimit = 0,
+    databaseLimit,
+    backupLimit,
+    allocationLimit,
+    subdomainSupported = false,
 }: ServerMobileMenuProps) => {
     const NavigationItem = ({
         to,
@@ -160,7 +162,7 @@ export const ServerMobileMenu = ({
                     </NavigationItem>
                 </Can>
 
-                {databaseLimit > 0 && (
+                {databaseLimit !== 0 && (
                     <Can action={'database.*'} matchAny>
                         <NavigationItem to={`/server/${serverId}/databases`} icon={HugeIconsDatabase} end>
                             Bases de datos
@@ -168,7 +170,7 @@ export const ServerMobileMenu = ({
                     </Can>
                 )}
 
-                {backupLimit > 0 && (
+                {backupLimit !== 0 && (
                     <Can action={'backup.*'} matchAny>
                         <NavigationItem to={`/server/${serverId}/backups`} icon={HugeIconsCloudUp} end>
                             Copias de seguridad
@@ -176,7 +178,7 @@ export const ServerMobileMenu = ({
                     </Can>
                 )}
 
-                {allocationLimit > 0 && (
+                {(allocationLimit > 0 || subdomainSupported) && (
                     <Can action={'allocation.*'} matchAny>
                         <NavigationItem to={`/server/${serverId}/network`} icon={HugeIconsConnections} end>
                             Red

@@ -186,7 +186,7 @@ const ScheduleEditContainer = () => {
                                     disabled={schedule.isProcessing}
                                     onClick={onTriggerExecute}
                                 >
-                                    Run Now
+                                    Ejecutar ahora
                                 </ActionButton>
                             </Can>
                         )}
