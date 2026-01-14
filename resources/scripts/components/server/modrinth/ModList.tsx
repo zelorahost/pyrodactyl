@@ -69,9 +69,9 @@ export const ModList = ({ showInstalled = false, showDependencies = false }: Mod
             }
             setHasMore(data.length >= 20);
         } catch (err) {
-            setError('Failed to load mods. Please try again later.');
+            setError('No se han podido obtener los mods. Por favor, inténtalo de nuevo más tarde.');
             console.error('Mod fetch error:', err);
-            toast.error(err instanceof Error ? err.message : 'Failed to fetch mods');
+            toast.error(err instanceof Error ? err.message : 'No se han podido obtener los datos');
         } finally {
             setIsLoading(false);
         }
@@ -101,17 +101,17 @@ export const ModList = ({ showInstalled = false, showDependencies = false }: Mod
     return (
         <div className='space-y-6'>
             <div className='text-sm text-gray-400 px-2 py-1 bg-gray-800/50 rounded-lg inline-block'>
-                Showing {mods.length} {showInstalled ? 'plugins' : 'mods'}
+                Mostrando {mods.length} {showInstalled ? 'plugins' : 'mods'}
                 {searchQuery && (
                     <span className='text-gray-300'>
                         {' '}
-                        for &quot;<span className='text-blue-400'>{searchQuery}</span>&quot;
+                        con &quot;<span className='text-blue-400'>{searchQuery}</span>&quot;
                     </span>
                 )}
                 {/* TODO: Make this have a tooltip with selected Filters  */}
                 {/* TODO: Add a filter reset button */}
                 {(selectedLoaders.length > 0 || selectedVersions.length > 0) && (
-                    <span className='text-gray-300'>{' with filters'}</span>
+                    <span className='text-gray-300'>{' con filtros'}</span>
                 )}
             </div>
 
@@ -179,6 +179,6 @@ const ErrorDisplay = ({ message }: { message: string }) => (
 
 const EmptyState = () => (
     <ContentBox>
-        <div className='text-gray-400 p-4 text-center'>No mods found matching your criteria</div>
+        <div className='text-gray-400 p-4 text-center'>No se han encontrado mods</div>
     </ContentBox>
 );

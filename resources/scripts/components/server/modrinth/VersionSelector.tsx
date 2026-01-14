@@ -48,7 +48,7 @@ export const VersionSelector = () => {
             <div className='relative'>
                 <Input
                     type='text'
-                    placeholder='Search versions...'
+                    placeholder='Buscar versiones...'
                     value={searchQuery}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
                     className='w-full pl-3 pr-8 py-1 text-sm'
@@ -64,10 +64,10 @@ export const VersionSelector = () => {
             </div>
 
             {gameVersions.length === 0 ? (
-                <p className='text-sm text-gray-500'>No versions available</p>
+                <p className='text-sm text-gray-500'>No hay versiones disponibles</p>
             ) : !hasSearchResults ? (
                 <p className='text-sm text-gray-500 text-center py-2'>
-                    No versions found matching &quot;{searchQuery}&quot;
+                    No hay versiones con &quot;{searchQuery}&quot;
                 </p>
             ) : (
                 <>
@@ -75,7 +75,7 @@ export const VersionSelector = () => {
                         {/* Show releases first */}
                         {hasReleases && (
                             <div className='space-y-1'>
-                                {!searchQuery && <p className='text-xs text-gray-500 font-medium'>Releases</p>}
+                                {!searchQuery && <p className='text-xs text-gray-500 font-medium'>Lanzamientos</p>}
                                 {releases.map((version) => (
                                     <Checkbox
                                         key={version.id}
@@ -134,14 +134,14 @@ export const VersionSelector = () => {
                     </div>
 
                     <div className='flex justify-between items-center pt-1 border-t border-gray-200'>
-                        <span className='text-xs text-gray-500'>{selectedVersions.length} selected</span>
+                        <span className='text-xs text-gray-500'>{selectedVersions.length} seleccionado(s)</span>
 
                         {searchQuery && (
                             <button
                                 onClick={() => setSearchQuery('')}
                                 className='text-xs text-gray-600 hover:text-gray-800 font-medium'
                             >
-                                Clear search
+                                Limpiar búsqueda
                             </button>
                         )}
                     </div>
@@ -153,7 +153,7 @@ export const VersionSelector = () => {
                                 className='w-full text-xs text-white-600 hover:text-gray-300 font-medium py-1 flex items-center justify-center gap-1'
                             >
                                 <span>{showSnapshots ? '-' : '+'}</span>
-                                {showSnapshots ? 'Hide Snapshots' : 'Show Snapshots'}
+                                {showSnapshots ? 'Ocultar Snapshots' : 'Mostrar Snapshots'}
                             </button>
                         </div>
                     )}
