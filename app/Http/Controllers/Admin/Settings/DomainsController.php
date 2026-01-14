@@ -11,14 +11,14 @@ use Pterodactyl\Services\Subdomain\SubdomainManagementService;
 use Pterodactyl\Exceptions\Dns\DnsProviderException;
 use Illuminate\Contracts\View\Factory as ViewFactory;
 use Pterodactyl\Http\Requests\Admin\Settings\DomainFormRequest;
+use Pterodactyl\Enums\Subdomain\Providers;
 
 class DomainsController extends Controller
 {
     public function __construct(
         private ViewFactory $view,
         private SubdomainManagementService $subdomainService,
-    ) {
-    }
+    ) {}
 
     /**
      * Display the domains management page.
@@ -221,12 +221,7 @@ class DomainsController extends Controller
      */
     private function getAvailableProviders(): array
     {
-        return [
-            'cloudflare' => [
-                'name' => 'Cloudflare',
-                'description' => 'Cloudflare DNS service',
-            ],
-        ];
+        return Providers::allWithDescriptions();
     }
 
     /**
@@ -234,9 +229,7 @@ class DomainsController extends Controller
      */
     private function getProviderClass(string $provider): string
     {
-        $providers = [
-            'cloudflare' => \Pterodactyl\Services\Dns\Providers\CloudflareProvider::class,
-        ];
+        $providers = Providers::all();
 
         if (!isset($providers[$provider])) {
             throw new \Exception("Unsupported DNS provider: {$provider}");

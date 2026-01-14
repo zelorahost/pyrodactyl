@@ -8,14 +8,10 @@ use Pterodactyl\Models\ServerSubdomain;
 use Pterodactyl\Contracts\Dns\DnsProviderInterface;
 use Pterodactyl\Contracts\Subdomain\SubdomainFeatureInterface;
 use Pterodactyl\Exceptions\Dns\DnsProviderException;
-use Pterodactyl\Services\Subdomain\Features\FactorioSubdomainFeature;
-use Pterodactyl\Services\Subdomain\Features\MinecraftSubdomainFeature;
-use Pterodactyl\Services\Subdomain\Features\RustSubdomainFeature;
-use Pterodactyl\Services\Subdomain\Features\ScpSlSubdomainFeature;
-use Pterodactyl\Services\Subdomain\Features\TeamSpeakSubdomainFeature;
-use Pterodactyl\Services\Dns\Providers\CloudflareProvider;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Pterodactyl\Enums\Subdomain\Providers;
+use Pterodactyl\Enums\Subdomain\Features;
 
 class SubdomainManagementService
 {
@@ -25,18 +21,10 @@ class SubdomainManagementService
     public function __construct()
     {
         // Register DNS providers
-        $this->dnsProviders = [
-            'cloudflare' => CloudflareProvider::class,
-        ];
+        $this->dnsProviders = Providers::all();
 
         // Register subdomain features
-        $this->subdomainFeatures = [
-            'subdomain_factorio' => FactorioSubdomainFeature::class,
-            'subdomain_minecraft' => MinecraftSubdomainFeature::class,
-            'subdomain_rust' => RustSubdomainFeature::class,
-            'subdomain_scpsl' => ScpSlSubdomainFeature::class,
-            'subdomain_teamspeak' => TeamSpeakSubdomainFeature::class,
-        ];
+        $this->subdomainFeatures = Features::all();
     }
 
     /**
@@ -48,7 +36,7 @@ class SubdomainManagementService
      * @return ServerSubdomain
      * @throws \Exception
      */
-    public function createSubdomain(Server $server, Domain $domain, string $subdomain): ServerSubdomain
+    public function createSubdomain(Server $server, Domain $domain, string $subdomain): ?ServerSubdomain
     {
         // Check if server supports subdomains
         $feature = $this->getServerSubdomainFeature($server);
@@ -58,6 +46,7 @@ class SubdomainManagementService
 
         // Validate subdomain
         $this->validateSubdomain($subdomain, $feature, $domain);
+        $dnsRecord = $this->createDnsRecord($subdomain, $domain);
 
         // Get DNS provider
         try {
@@ -67,10 +56,12 @@ class SubdomainManagementService
         }
 
         // Get DNS records to create
-        $dnsRecords = $feature->getDnsRecords($server, $subdomain, $domain->name);
+        $newDomain = $this->createDnsRecord($subdomain, $domain->name);
+        $dnsRecords = $feature->getDnsRecords($server, $newDomain, $domain->name);
 
         // Normalize IP addresses in DNS records
         $dnsRecords = $this->normalizeIpAddresses($dnsRecords, $server);
+
 
         // Use database transaction for consistency
         return DB::transaction(function () use ($server, $domain, $subdomain, $feature, $dnsProvider, $dnsRecords) {
@@ -469,6 +460,7 @@ class SubdomainManagementService
             'github',
             'gitlab',
             'gitea',
+            'forgejo',
             'bitbucket',
             'hg',
             'svn',
@@ -631,4 +623,65 @@ class SubdomainManagementService
         }
         return $dnsRecords;
     }
+
+
+    private static function getDnsSubdomainHierarchy($domain)
+    {
+        /**
+         * Get the subdomain hierarchy for DNS record creation
+         *
+         * For 'servers.pyrodactyl.dev' returns 'servers'
+         * For 'api.v1.service.github.io' returns 'api.v1.service'
+         * For 'www.example.com' returns 'www'
+         * For 'example.com' returns ''
+         */
+
+        $cleanDomain = parse_url($domain, PHP_URL_HOST) ?: $domain;
+        $parts = explode('.', $cleanDomain);
+        $partCount = count($parts);
+
+        if ($partCount < 2) {
+            return ['error' => 'Invalid domain format'];
+        }
+
+        if ($partCount > 2) {
+            $subdomainParts = array_slice($parts, 0, $partCount - 2);
+            return implode('.', $subdomainParts);
+        }
+
+        return '';
+    }
+
+    public function createDnsRecord($serverName, $domain)
+    {
+        /**
+         * Create DNS record in the format: servername.subdomain_hierarchy
+         */
+
+        $subdomainHierarchy = $this->getDnsSubdomainHierarchy($domain);
+
+        if ($subdomainHierarchy === '') {
+            return $serverName;
+        } else {
+            return $serverName . '.' . $subdomainHierarchy;
+        }
+    }
 }
+
+
+# TODO: Move these to dedicated test in the test suite
+/* $testCases = [ */
+/*     ['servername', 'servers.pyrodactyl.dev'], */
+/*     ['node1', 'api.v1.service.github.io'], */
+/*     ['web01', 'www.example.com'], */
+/*     ['db01', 'example.com'], */
+/*     ['app', 'staging.app.company.co.uk'],  # TODO: This one is a doozy and returns "DNS Record: app.staging.app.company" instead of "DNS Record: app.staging.app" due to DAMN TLDS!!! */
+/* ]; */
+/**/
+/* foreach ($testCases as [$serverName, $domain]) { */
+/*     $dnsRecord = createDnsRecord($serverName, $domain); */
+/*     echo "Server: $serverName, Domain: $domain\n"; */
+/*     echo "DNS Record: $dnsRecord\n"; */
+/*     echo "Subdomain Hierarchy: '" . getDnsSubdomainHierarchy($domain) . "'\n"; */
+/*     echo str_repeat('-', 50) . "\n"; */
+/* } */

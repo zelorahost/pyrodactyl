@@ -134,7 +134,7 @@ const FileEditContainer = () => {
                 </div>
             </ErrorBoundary>
 
-            {['.pyroignore', '.pteroignore'].includes(filename) ? (
+            {['.pyroignore', '.pyroignore'].includes(filename) ? (
                 <div className={`mb-4 p-4 border-l-4 bg-neutral-900 rounded-sm border-cyan-400`}>
                     <p className={`text-neutral-300 text-sm`}>
                         Estás editando un archivo

@@ -1,3 +1,4 @@
+import { Box, TriangleExclamation } from '@gravity-ui/icons';
 import { useEffect, useMemo, useState } from 'react';
 import isEqual from 'react-fast-compare';
 import { toast } from 'sonner';
@@ -16,13 +17,14 @@ import ServerContentBlock from '@/components/elements/ServerContentBlock';
 import Spinner from '@/components/elements/Spinner';
 import { Switch } from '@/components/elements/SwitchV2';
 import TitledGreyBox from '@/components/elements/TitledGreyBox';
-import HugeIconsAlert from '@/components/elements/hugeicons/Alert';
-import HugeIconsEggs from '@/components/elements/hugeicons/Egg';
 import OperationProgressModal from '@/components/server/operations/OperationProgressModal';
+import WingsOperationProgressModal from '@/components/server/operations/WingsOperationProgressModal';
 
 import { httpErrorToHuman } from '@/api/http';
 import getNests from '@/api/nests/getNests';
 import applyEggChange from '@/api/server/applyEggChange';
+import applyEggChangeSync from '@/api/server/applyEggChangeSync';
+import { getGlobalDaemonType } from '@/api/server/getServer';
 import previewEggChange, { EggPreview } from '@/api/server/previewEggChange';
 import { ServerOperation } from '@/api/server/serverOperations';
 import getServerBackups from '@/api/swr/getServerBackups';
@@ -249,6 +251,7 @@ const validateEnvironmentVariables = (variables: any[], pendingVariables: Record
 
 const SoftwareContainer = () => {
     const serverData = ServerContext.useStoreState((state) => state.server.data);
+    const daemonType = getGlobalDaemonType();
     const uuid = serverData?.uuid;
     const [nests, setNests] = useState<Nest[]>();
     //const eggs = nests?.reduce(
@@ -271,6 +274,7 @@ const SoftwareContainer = () => {
             ?.attributes?.name;
     }, [nests, currentEgg]);
     const backupLimit = serverData?.featureLimits.backups;
+
     const { data: backups } = getServerBackups();
     const setServerFromState = ServerContext.useStoreActions((actions) => actions.server.setServerFromState);
 
@@ -508,8 +512,8 @@ const SoftwareContainer = () => {
                 selectedDockerImage && eggPreview.docker_images
                     ? eggPreview.docker_images[selectedDockerImage]
                     : eggPreview.default_docker_image && eggPreview.docker_images
-                      ? eggPreview.docker_images[eggPreview.default_docker_image]
-                      : '';
+                        ? eggPreview.docker_images[eggPreview.default_docker_image]
+                        : '';
 
             // Filter out empty environment variables to prevent validation issues
             const filteredEnvironment: Record<string, string> = {};
@@ -519,24 +523,34 @@ const SoftwareContainer = () => {
                 }
             });
 
-            // Start the async operation
-            const response = await applyEggChange(uuid, {
-                egg_id: selectedEgg.attributes.id,
-                nest_id: selectedNest.attributes.id,
-                docker_image: actualDockerImage,
-                startup_command: customStartup,
-                environment: filteredEnvironment,
-                should_backup: shouldBackup,
-                should_wipe: shouldWipe,
-            });
+            if (daemonType?.toLowerCase() == 'elytra') {
+                const response = await applyEggChange(uuid, {
+                    egg_id: selectedEgg.attributes.id,
+                    nest_id: selectedNest.attributes.id,
+                    docker_image: actualDockerImage,
+                    startup_command: customStartup,
+                    environment: filteredEnvironment,
+                    should_backup: shouldBackup,
+                    should_wipe: shouldWipe,
+                });
 
-            // Operation started successfully - show progress modal
-            setCurrentOperationId(response.operation_id);
-            setShowOperationModal(true);
+                setCurrentOperationId(response.operation_id);
+
+                setShowOperationModal(true);
+            } else if (daemonType?.toLowerCase() == 'wings') {
+                await applyEggChangeSync(uuid, {
+                    egg_id: selectedEgg.attributes.id,
+                    nest_id: selectedNest.attributes.id,
+                    docker_image: actualDockerImage,
+                    startup_command: customStartup,
+                    environment: filteredEnvironment,
+                    should_backup: shouldBackup,
+                    should_wipe: shouldWipe,
+                });
+            }
 
             toast.success('La operación de cambio de software se ha iniciado');
 
-            // Reset the configuration flow but keep the modal open
             resetFlow();
         } catch (error) {
             console.error('La operación de cambio de software ha fallado:', error);
@@ -617,7 +631,12 @@ const SoftwareContainer = () => {
             <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4'>
                 <div className='flex items-center gap-3 sm:gap-4 min-w-0 flex-1'>
                     <div className='w-10 h-10 sm:w-12 sm:h-12 bg-[#ffffff11] rounded-lg flex items-center justify-center flex-shrink-0'>
-                        <HugeIconsEggs fill='currentColor' className='w-5 h-5 sm:w-6 sm:h-6 text-neutral-300' />
+                        <Box
+                            width={22}
+                            height={22}
+                            fill='currentColor'
+                            className='w-5 h-5 sm:w-6 sm:h-6 text-neutral-300'
+                        />
                     </div>
                     <div className='min-w-0 flex-1'>
                         {currentEggName ? (
@@ -883,12 +902,11 @@ const SoftwareContainer = () => {
                                                         onChange={(e) =>
                                                             handleVariableChange(variable.env_variable, e.target.value)
                                                         }
-                                                        placeholder={variable.default_value || 'Introduce un valor...'}
-                                                        className={`w-full px-3 py-2 bg-[#ffffff08] border rounded-lg text-sm text-neutral-200 placeholder:text-neutral-500 focus:outline-none transition-colors ${
-                                                            variableErrors[variable.env_variable]
-                                                                ? 'border-red-500 focus:border-red-500'
-                                                                : 'border-[#ffffff12] focus:border-brand'
-                                                        }`}
+                                                        placeholder={variable.default_value || 'Introduce el valor...'}
+                                                        className={`w-full px-3 py-2 bg-[#ffffff08] border rounded-lg text-sm text-neutral-200 placeholder:text-neutral-500 focus:outline-none transition-colors ${variableErrors[variable.env_variable]
+                                                            ? 'border-red-500 focus:border-red-500'
+                                                            : 'border-[#ffffff12] focus:border-brand'
+                                                            }`}
                                                     />
                                                     {variableErrors[variable.env_variable] && (
                                                         <p className='text-xs text-red-400 mt-1'>
@@ -928,8 +946,9 @@ const SoftwareContainer = () => {
                                             Crear copia
                                         </label>
                                         <p className='text-xs text-neutral-400 leading-relaxed'>
-                                            {backupLimit !== 0 && (backupLimit === null || (backups?.backupCount || 0) < backupLimit)
-                                                ? 'Crear una copia automáticamente antes de aplicar los cambios'
+                                            {backupLimit !== 0 &&
+                                                (backupLimit === null || (backups?.backupCount || 0) < backupLimit)
+                                                ? 'Automatically create a backup before applying changes'
                                                 : backupLimit === 0
                                                     ? 'Las copias están desactivadas en este servidor'
                                                     : 'El servidor ha alcanzado el límite de copias'}
@@ -939,7 +958,10 @@ const SoftwareContainer = () => {
                                         <Switch
                                             checked={shouldBackup}
                                             onCheckedChange={setShouldBackup}
-                                            disabled={backupLimit === 0 || (backupLimit !== null && (backups?.backupCount || 0) >= backupLimit)}
+                                            disabled={
+                                                backupLimit === 0 ||
+                                                (backupLimit !== null && (backups?.backupCount || 0) >= backupLimit)
+                                            }
                                         />
                                     </div>
                                 </div>
@@ -1087,24 +1109,23 @@ const SoftwareContainer = () => {
                                 {eggPreview.warnings.map((warning, index) => (
                                     <div
                                         key={index}
-                                        className={`p-4 border rounded-lg ${
-                                            warning.severity === 'error'
-                                                ? 'bg-red-500/10 border-red-500/20'
-                                                : 'bg-amber-500/10 border-amber-500/20'
-                                        }`}
+                                        className={`p-4 border rounded-lg ${warning.severity === 'error'
+                                            ? 'bg-red-500/10 border-red-500/20'
+                                            : 'bg-amber-500/10 border-amber-500/20'
+                                            }`}
                                     >
                                         <div className='flex items-start gap-3'>
-                                            <HugeIconsAlert
+                                            <TriangleExclamation
+                                                width={22}
+                                                height={22}
                                                 fill='currentColor'
-                                                className={`w-5 h-5 flex-shrink-0 mt-0.5 ${
-                                                    warning.severity === 'error' ? 'text-red-400' : 'text-amber-400'
-                                                }`}
+                                                className={`w-5 h-5 flex-shrink-0 mt-0.5 ${warning.severity === 'error' ? 'text-red-400' : 'text-amber-400'
+                                                    }`}
                                             />
                                             <div>
                                                 <h4
-                                                    className={`font-semibold mb-2 ${
-                                                        warning.severity === 'error' ? 'text-red-400' : 'text-amber-400'
-                                                    }`}
+                                                    className={`font-semibold mb-2 ${warning.severity === 'error' ? 'text-red-400' : 'text-amber-400'
+                                                        }`}
                                                 >
                                                     {warning.type === 'subdomain_incompatible'
                                                         ? 'Subdomain Will Be Deleted'
@@ -1121,7 +1142,9 @@ const SoftwareContainer = () => {
                         {/* General Warning */}
                         <div className='p-4 bg-amber-500/10 border border-amber-500/20 rounded-lg'>
                             <div className='flex items-start gap-3'>
-                                <HugeIconsAlert
+                                <TriangleExclamation
+                                    width={22}
+                                    height={22}
                                     fill='currentColor'
                                     className='w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5'
                                 />
@@ -1177,7 +1200,33 @@ const SoftwareContainer = () => {
             </ServerContentBlock>
         );
     }
-
+    function RenderOperationModal() {
+        if (daemonType == 'elytra') {
+            return (
+                <OperationProgressModal
+                    visible={showOperationModal}
+                    operationId={currentOperationId}
+                    operationType='Software Change'
+                    onClose={closeOperationModal}
+                    onComplete={handleOperationComplete}
+                    onError={handleOperationError}
+                />
+            );
+        }
+        if (daemonType == 'wings') {
+            return (
+                <WingsOperationProgressModal
+                    visible={showOperationModal}
+                    operationId={currentOperationId}
+                    operationType='Software Change'
+                    onClose={closeOperationModal}
+                    onComplete={handleOperationComplete}
+                    onError={handleOperationError}
+                />
+            );
+        }
+        return <div>Could not find Operation Modal for this daemon: Using ${daemonType}</div>;
+    }
     return (
         <ServerContentBlock title='Gestión del software'>
             <div className='space-y-6'>
@@ -1233,7 +1282,12 @@ const SoftwareContainer = () => {
             >
                 <div className='space-y-4'>
                     <div className='flex items-start gap-3 p-4 bg-red-500/10 border border-red-500/20 rounded-lg'>
-                        <HugeIconsAlert fill='currentColor' className='w-5 h-5 text-red-400 flex-shrink-0 mt-0.5' />
+                        <TriangleExclamation
+                            width={22}
+                            height={22}
+                            fill='currentColor'
+                            className='w-5 h-5 text-red-400 flex-shrink-0 mt-0.5'
+                        />
                         <div>
                             <h4 className='text-red-400 font-semibold mb-2'>AVISO: No has seleccionado una copia</h4>
                             <p className='text-sm text-neutral-300'>
@@ -1261,14 +1315,7 @@ const SoftwareContainer = () => {
             </ConfirmationModal>
 
             {/* Operation Progress Modal */}
-            <OperationProgressModal
-                visible={showOperationModal}
-                operationId={currentOperationId}
-                operationType='Cambio de software'
-                onClose={closeOperationModal}
-                onComplete={handleOperationComplete}
-                onError={handleOperationError}
-            />
+            {RenderOperationModal()}
         </ServerContentBlock>
     );
 };

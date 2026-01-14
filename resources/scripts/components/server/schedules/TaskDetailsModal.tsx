@@ -25,7 +25,6 @@ import useFlash from '@/plugins/useFlash';
 // TODO: Port modern dropdowns to Formik and integrate them
 // import { DropdownMenu, DropdownMenuContent, DropdownMenuRadioGroup, DropdownMenuRadioItem } from '@/components/elements/DropdownMenu';
 // import { DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu';
-// import HugeIconsArrowUp from '@/components/elements/hugeicons/ArrowUp';
 
 const Label = styled.label`
     display: inline-block;
@@ -215,7 +214,7 @@ const TaskDetailsModal = ({ schedule, task }: Props) => {
                                     <FormikFieldWrapper
                                         name={'payload'}
                                         description={
-                                            'Los archivos y carpetas que se ignorarán en esta copia. Por defecto, se aplicarán los contenidos del archivo .pteroignore (si existe). Si has alcanzado el límite de copias, la más antigua se eliminará.'
+                                            'Los archivos y carpetas que se ignorarán en esta copia. Por defecto, se aplicarán los contenidos del archivo .pyroignore (si existe). Si has alcanzado el límite de copias, la más antigua se eliminará.'
                                         }
                                     >
                                         <FormikField

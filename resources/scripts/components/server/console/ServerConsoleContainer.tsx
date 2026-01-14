@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useEffect, useState } from 'react';
 import isEqual from 'react-fast-compare';
 
 import ErrorBoundary from '@/components/elements/ErrorBoundary';
@@ -11,35 +11,72 @@ import Console from '@/components/server/console/Console';
 import PowerButtons from '@/components/server/console/PowerButtons';
 import ServerDetailsBlock from '@/components/server/console/ServerDetailsBlock';
 import StatGraphs from '@/components/server/console/StatGraphs';
+import { SocketEvent, SocketRequest } from '@/components/server/events';
 import { CrashAnalysisCard } from '@/components/server/features/MclogsFeature';
 
 import { ServerContext } from '@/state/server';
 
+import useWebsocketEvent from '@/plugins/useWebsocketEvent';
+
 import Features from '@feature/Features';
 
+import UptimeDuration from '../UptimeDuration';
+
 export type PowerAction = 'start' | 'stop' | 'restart' | 'kill';
+type UptimeStat = Record<'uptime', number>;
 
 const ServerConsoleContainer = () => {
     const name = ServerContext.useStoreState((state) => state.server.data!.name);
     const description = ServerContext.useStoreState((state) => state.server.data!.description);
     const isInstalling = ServerContext.useStoreState((state) => state.server.isInstalling);
     const isTransferring = ServerContext.useStoreState((state) => state.server.data!.isTransferring);
+    const connected = ServerContext.useStoreState((state) => state.socket.connected);
+    const instance = ServerContext.useStoreState((state) => state.socket.instance);
     const eggFeatures = ServerContext.useStoreState((state) => state.server.data!.eggFeatures, isEqual);
     const isNodeUnderMaintenance = ServerContext.useStoreState((state) => state.server.data!.isNodeUnderMaintenance);
+    const [uptime, setUptime] = useState<UptimeStat>({ uptime: 0 });
+
+    useEffect(() => {
+        if (!connected || !instance) {
+            return;
+        }
+
+        instance.send(SocketRequest.SEND_STATS);
+    }, [instance, connected]);
+
+    useWebsocketEvent(SocketEvent.STATS, (data) => {
+        let stats: any = {};
+        try {
+            stats = JSON.parse(data);
+        } catch (e) {
+            return;
+        }
+        setUptime({
+            uptime: stats.uptime || 0,
+        });
+    });
 
     return (
         <ServerContentBlock title={'Inicio'}>
             <div className='w-full h-full min-h-full flex-1 flex flex-col px-2 sm:px-0'>
                 {(isNodeUnderMaintenance || isInstalling || isTransferring) && (
-                    <Alert type={'warning'} className={'mb-4'}>
-                        {isNodeUnderMaintenance
-                            ? 'El nodo en el que se aloja este servidor se encuentra en mantenimiento.'
-                            : isInstalling
-                              ? 'Este servidor está instalándose. La mayoría de acciones no estarán disponibles hasta que finalice el proceso.'
-                              : 'Este servidor está transfiriéndose a otro nodo. La mayoría de acciones no estarán disponibles hasta que finalice el proceso.'}
-                    </Alert>
+                    <div
+                        className='transform-gpu skeleton-anim-2 mb-3 sm:mb-4'
+                        style={{
+                            animationDelay: '50ms',
+                            animationTimingFunction:
+                                'linear(0,0.01,0.04 1.6%,0.161 3.3%,0.816 9.4%,1.046,1.189 14.4%,1.231,1.254 17%,1.259,1.257 18.6%,1.236,1.194 22.3%,1.057 27%,0.999 29.4%,0.955 32.1%,0.942,0.935 34.9%,0.933,0.939 38.4%,1 47.3%,1.011,1.017 52.6%,1.016 56.4%,1 65.2%,0.996 70.2%,1.001 87.2%,1)',
+                        }}
+                    >
+                        <Alert type={'warning'}>
+                            {isNodeUnderMaintenance
+                                ? 'El nodo en el que se aloja tu servidor se encuentra en mantenimiento. No puedes realizar ninguna acción.'
+                                : isInstalling
+                                    ? 'Tu servidor está siendo instalado. La mayoría de acciones no estarán disponibles.'
+                                    : 'Tu servidor está siendo transferido a otro nodo. No puedes realizar ninguna acción.'}
+                        </Alert>
+                    </div>
                 )}
-
                 <div
                     className='transform-gpu skeleton-anim-2 mb-3 sm:mb-4'
                     style={{
@@ -50,6 +87,11 @@ const ServerConsoleContainer = () => {
                 >
                     <MainPageHeader
                         title={name}
+                        headChildren={
+                            <p className='hidden bg-color ms:block ms:inline-flex md:inline-flex md:block absolute left-0 mb-4 mt-8 p-1 text-zinc-300 border-2 bg-gradient-to-b from-[#ffffff08] to-[#ffffff05] border-[#ffffff12] rounded-lg hover:border-[#ffffff20] transition-al283824000000l duration-150 shadow-sm '>
+                                Tiempo de actividad: {UptimeDuration(uptime)}
+                            </p>
+                        }
                         titleChildren={
                             <div
                                 className='transform-gpu skeleton-anim-2'
@@ -59,15 +101,17 @@ const ServerConsoleContainer = () => {
                                         'linear(0,0.01,0.04 1.6%,0.161 3.3%,0.816 9.4%,1.046,1.189 14.4%,1.231,1.254 17%,1.259,1.257 18.6%,1.236,1.194 22.3%,1.057 27%,0.999 29.4%,0.955 32.1%,0.942,0.935 34.9%,0.933,0.939 38.4%,1 47.3%,1.011,1.017 52.6%,1.016 56.4%,1 65.2%,0.996 70.2%,1.001 87.2%,1)',
                                 }}
                             >
+                                <p className='inline-flex relative max-w-50 min-w-35 block ms:hidden md:hidden justify-left left-0 mb-4 p-1 text-zinc-300 border-2 bg-gradient-to-b from-[#ffffff08] to-[#ffffff05] border-[#ffffff12] rounded-lg hover:border-[#ffffff20] transition-all duration-150 shadow-sm '>
+                                    Tiempo de actividad: {UptimeDuration(uptime)}
+                                </p>
                                 <PowerButtons className='flex gap-1 items-center justify-center' />
                             </div>
                         }
                     />
                 </div>
-
                 {description && (
                     <div
-                        className='transform-gpu skeleton-anim-2 mb-3 sm:mb-4'
+                        className='transform-gpu skeleton-anim-2 mb-3 mt-3 sm:mb-4'
                         style={{
                             animationDelay: '100ms',
                             animationTimingFunction:
@@ -79,7 +123,6 @@ const ServerConsoleContainer = () => {
                         </div>
                     </div>
                 )}
-
                 <div className='flex flex-col gap-3 sm:gap-4'>
                     <div
                         className='transform-gpu skeleton-anim-2'

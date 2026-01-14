@@ -1,3 +1,17 @@
+import {
+    Box,
+    BranchesDown,
+    ClockArrowRotateLeft,
+    CloudArrowUpIn,
+    Database,
+    FolderOpen,
+    Gear,
+    House,
+    PencilToLine,
+    Persons,
+    Power,
+    Terminal,
+} from '@gravity-ui/icons';
 import { Command } from 'cmdk';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -8,18 +22,6 @@ import Can from '@/components/elements/Can';
 import { ServerContext } from '@/state/server';
 
 import ModrinthLogo from '../ModrinthLogo';
-import HugeIconsClock from '../hugeicons/Clock';
-import HugeIconsCloudUp from '../hugeicons/CloudUp';
-import HugeIconsConnections from '../hugeicons/Connections';
-import HugeIconsConsole from '../hugeicons/Console';
-import HugeIconsController from '../hugeicons/Controller';
-import HugeIconsDashboardSettings from '../hugeicons/DashboardSettings';
-import HugeIconsDatabase from '../hugeicons/Database';
-import HugeIconsFolder from '../hugeicons/Folder';
-import HugeIconsHome from '../hugeicons/Home';
-import HugeIconsPencil from '../hugeicons/Pencil';
-import HugeIconsPeople from '../hugeicons/People';
-import HugeIconsZap from '../hugeicons/Zap';
 
 const CommandMenu = () => {
     const [open, setOpen] = useState(false);
@@ -66,63 +68,63 @@ const CommandMenu = () => {
             <Command.List>
                 <Command.Empty>No se han encontrado resultados.</Command.Empty>
 
-                <Command.Group heading='Pages'>
+                <Command.Group heading='Páginas'>
                     <Command.Item onSelect={() => cmdkNavigate('')}>
-                        <HugeIconsHome fill='currentColor' />
+                        <House fill='currentColor' />
                         Inicio
                     </Command.Item>
                     <Can action={'file.*'} matchAny>
                         <Command.Item onSelect={() => cmdkNavigate('/files')}>
-                            <HugeIconsFolder fill='currentColor' />
+                            <FolderOpen fill='currentColor' />
                             Archivos
                         </Command.Item>
                     </Can>
                     <Can action={'database.*'} matchAny>
                         <Command.Item onSelect={() => cmdkNavigate('/databases')}>
-                            <HugeIconsDatabase fill='currentColor' />
+                            <Database fill='currentColor' />
                             Bases de datos
                         </Command.Item>
                     </Can>
                     <Can action={'backup.*'} matchAny>
                         <Command.Item onSelect={() => cmdkNavigate('/backups')}>
-                            <HugeIconsCloudUp fill='currentColor' />
+                            <CloudArrowUpIn fill='currentColor' />
                             Copias de seguridad
                         </Command.Item>
                     </Can>
                     <Can action={'allocation.*'} matchAny>
                         <Command.Item onSelect={() => cmdkNavigate('/network')}>
-                            <HugeIconsConnections fill='currentColor' />
+                            <BranchesDown fill='currentColor' />
                             Red
                         </Command.Item>
                     </Can>
                     <Can action={'user.*'} matchAny>
                         <Command.Item onSelect={() => cmdkNavigate('/users')}>
-                            <HugeIconsPeople fill='currentColor' />
+                            <Persons fill='currentColor' />
                             Usuarios
                         </Command.Item>
                     </Can>
                     <Can action={['startup.*']} matchAny>
                         <Command.Item onSelect={() => cmdkNavigate('/startup')}>
-                            <HugeIconsConsole fill='currentColor' />
+                            <Terminal fill='currentColor' />
                             Inicio
                         </Command.Item>
                     </Can>
                     <Can action={['schedule.*']} matchAny>
                         <Command.Item onSelect={() => cmdkNavigate('/schedules')}>
-                            <HugeIconsClock fill='currentColor' />
+                            <ClockArrowRotateLeft fill='currentColor' />
                             Programas
                         </Command.Item>
                     </Can>
                     <Can action={['settings.*', 'file.sftp']} matchAny>
                         <Command.Item onSelect={() => cmdkNavigate('/settings')}>
-                            <HugeIconsDashboardSettings fill='currentColor' />
+                            <Gear fill='currentColor' />
                             Ajustes
                         </Command.Item>
                     </Can>
                     <Can action={['activity.*']} matchAny>
                         <Command.Item onSelect={() => cmdkNavigate('/activity')}>
-                            <HugeIconsPencil fill='currentColor' />
-                            Actividad
+                            <PencilToLine fill='currentColor' />
+                            Activity
                         </Command.Item>
                     </Can>
                     <Can action={['modrinth.*']} matchAny>
@@ -131,30 +133,32 @@ const CommandMenu = () => {
                             Mods/Plugins
                         </Command.Item>
                     </Can>
+                    {/*
                     <Can action={['software.*']} matchAny>
                         <Command.Item onSelect={() => cmdkNavigate('/shell')}>
-                            <HugeIconsController fill='currentColor' />
+                            <Box fill='currentColor' />
                             Software
                         </Command.Item>
                     </Can>
+                    */}
                 </Command.Group>
-                <Command.Group heading='Server'>
+                <Command.Group heading='Servidor'>
                     <Can action={'control.start'}>
                         <Command.Item disabled={status !== 'offline'} onSelect={() => cmdkPowerAction('start')}>
-                            <HugeIconsZap fill='currentColor' />
-                            Iniciar
+                            <Power fill='currentColor' />
+                            Iniciar servidor
                         </Command.Item>
                     </Can>
                     <Can action={'control.restart'}>
                         <Command.Item disabled={!status} onSelect={() => cmdkPowerAction('restart')}>
-                            <HugeIconsZap fill='currentColor' />
-                            Reiniciar
+                            <Power fill='currentColor' />
+                            Reiniciar servidor
                         </Command.Item>
                     </Can>
                     <Can action={'control.restart'}>
                         <Command.Item disabled={status === 'offline'} onSelect={() => cmdkPowerAction('stop')}>
-                            <HugeIconsZap fill='currentColor' />
-                            Detener
+                            <Power fill='currentColor' />
+                            Detener servidor
                         </Command.Item>
                     </Can>
                 </Command.Group>
