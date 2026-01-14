@@ -138,7 +138,7 @@ const FileEditContainer = () => {
                 <div className={`mb-4 p-4 border-l-4 bg-neutral-900 rounded-sm border-cyan-400`}>
                     <p className={`text-neutral-300 text-sm`}>
                         Estás editando un archivo
-                        <code className={`font-mono bg-black rounded-sm py-px px-1`}>.pteroignore</code>. Cualquier archivo
+                        <code className={`font-mono bg-black rounded-sm py-px px-1`}>.pyroignore</code>. Cualquier archivo
                         o carpeta en esta lista se excluirá de futuras copias de seguridad. Puedes usar wildcards (*) y/o
                         negar una regla usando una exclamación.
                     </p>

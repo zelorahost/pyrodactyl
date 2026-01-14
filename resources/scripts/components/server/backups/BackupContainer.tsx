@@ -92,7 +92,7 @@ const ModalContent = ({ ...props }: RequiredModalProps) => {
                         label={'Archivos y carpetas ignoradas'}
                         description={`
                             Introduce los archivos y/o carpetas que se ignorarán al generar esta copia. Deja este
-                            campo en blanco para usar el contenido de tu archivo .pteroignore como referencia (si
+                            campo en blanco para usar el contenido de tu archivo .pyroignore como referencia (si
                             existe). También puedes usar wildcards (*) y negar reglas con un signo de exclamación.
                         `}
                     >
