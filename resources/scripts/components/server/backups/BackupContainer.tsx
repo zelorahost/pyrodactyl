@@ -77,24 +77,23 @@ const ModalContent = ({ ...props }: RequiredModalProps) => {
     const { isSubmitting } = useFormikContext<BackupValues>();
 
     return (
-        <Modal {...props} showSpinnerOverlay={isSubmitting} title='Create server backup'>
+        <Modal {...props} showSpinnerOverlay={isSubmitting} title='Crear copia de seguridad'>
             <Form>
                 <FlashMessageRender byKey={'backups:create'} />
                 <Field
                     name={'name'}
-                    label={'Backup name'}
-                    description={'If provided, the name that should be used to reference this backup.'}
+                    label={'Nombre de la copia'}
+                    description={'El nombre que identificará esta copia de seguridad.'}
                 />
                 <div className={`mt-6 flex flex-col`}>
                     <FormikFieldWrapper
                         className='flex flex-col gap-2'
                         name={'ignored'}
-                        label={'Ignored Files & Directories'}
+                        label={'Archivos y carpetas ignoradas'}
                         description={`
-                            Enter the files or folders to ignore while generating this backup. Leave blank to use
-                            the contents of the .pyroignore file in the root of the server directory if present.
-                            Wildcard matching of files and folders is supported in addition to negating a rule by
-                            prefixing the path with an exclamation point.
+                            Introduce los archivos y/o carpetas que se ignorarán al generar esta copia. Deja este
+                            campo en blanco para usar el contenido de tu archivo .pteroignore como referencia (si
+                            existe). También puedes usar wildcards (*) y negar reglas con un signo de exclamación.
                         `}
                     >
                         <FormikField
@@ -109,15 +108,15 @@ const ModalContent = ({ ...props }: RequiredModalProps) => {
                     <div className={`my-6`}>
                         <FormikSwitchV2
                             name={'isLocked'}
-                            label={'Locked'}
-                            description={'Prevents this backup from being deleted until explicitly unlocked.'}
+                            label={'Bloqueada'}
+                            description={'No se puede eliminar la copia a menos que se desbloquee antes.'}
                         />
                     </div>
                 </Can>
                 <div className={`flex justify-end mb-6`}>
                     <ActionButton variant='primary' type={'submit'} disabled={isSubmitting}>
                         {isSubmitting && <Spinner size='small' />}
-                        {isSubmitting ? 'Creating backup...' : 'Start backup'}
+                        {isSubmitting ? 'Creando copia...' : 'Iniciar copia'}
                     </ActionButton>
                 </div>
             </Form>
@@ -175,12 +174,12 @@ const BackupContainer = () => {
 
     const handleDeleteAll = async () => {
         if (!deleteAllPassword) {
-            toast.error('Password is required to delete all backups.');
+            toast.error('Se requiere la contraseña para eliminar todas las copias.');
             return;
         }
 
         if (hasTwoFactor && !deleteAllTotpCode) {
-            toast.error('Two-factor authentication code is required.');
+            toast.error('Se requiere el código de autenticación de dos factores.');
             return;
         }
 
@@ -188,7 +187,7 @@ const BackupContainer = () => {
 
         try {
             await deleteAllServerBackups(uuid, deleteAllPassword, hasTwoFactor, deleteAllTotpCode);
-            toast.success('All backups and repositories are being deleted. This may take a few minutes.');
+            toast.success('Se están eliminando todas las copias y repositorios. Esta acción podría tomar unos minutos.');
 
             setDeleteAllModalVisible(false);
             setDeleteAllPassword('');
@@ -235,7 +234,7 @@ const BackupContainer = () => {
             addFlash({
                 key: 'backups:bulk_delete',
                 type: 'error',
-                message: 'Password is required to delete backups.',
+                message: 'Se requiere la contraseña para eliminar copias.',
             });
             return;
         }
@@ -244,7 +243,7 @@ const BackupContainer = () => {
             addFlash({
                 key: 'backups:bulk_delete',
                 type: 'error',
-                message: 'Two-factor authentication code is required.',
+                message: 'Se requiere el código de autenticación de dos factores.',
             });
             return;
         }
@@ -263,7 +262,7 @@ const BackupContainer = () => {
             addFlash({
                 key: 'backups',
                 type: 'success',
-                message: `${selectedBackups.size} backup${selectedBackups.size > 1 ? 's are' : ' is'} being deleted.`,
+                message: `${selectedBackups.size} copia${selectedBackups.size > 1 ? 's están' : ' está'} siendo eliminada.`,
             });
 
             setBulkDeleteModalVisible(false);
@@ -290,12 +289,12 @@ const BackupContainer = () => {
 
     if (!backups || (error && isValidating)) {
         return (
-            <ServerContentBlock title={'Backups'}>
+            <ServerContentBlock title={'Copias de seguridad'}>
                 <FlashMessageRender byKey={'backups'} />
-                <MainPageHeader direction='column' title={'Backups'}>
+                <MainPageHeader direction='column' title={'Copias de seguridad'}>
                     <p className='text-sm text-neutral-400 leading-relaxed'>
-                        Create and manage server backups to protect your data. Schedule automated backups, download
-                        existing ones, and restore when needed.
+                        Crea y gestiona copias de seguridad de tu servidor para proteger tus archivos. Programa copias automáticas,
+                        descarga las existentes y restáuralas cuando lo necesites.
                     </p>
                 </MainPageHeader>
                 <div className='flex items-center justify-center py-12'>
@@ -306,23 +305,23 @@ const BackupContainer = () => {
     }
 
     return (
-        <ServerContentBlock title={'Backups'}>
+        <ServerContentBlock title={'Copias de seguridad'}>
             <FlashMessageRender byKey={'backups'} />
             <MainPageHeader
                 direction='column'
-                title={'Backups'}
+                title={'Copias de seguridad'}
                 titleChildren={
                     <Can action={'backup.create'}>
                         <div className='flex flex-col sm:flex-row items-center justify-end gap-4'>
                             <div className='flex flex-col gap-1 text-center sm:text-right'>
                                 {/* Backup Count Display */}
-                                {backupLimit === null && <p className='text-sm text-zinc-300'>{backupCount} backups</p>}
+                                {backupLimit === null && <p className='text-sm text-zinc-300'>{backupCount} copias</p>}
                                 {backupLimit > 0 && (
                                     <p className='text-sm text-zinc-300'>
-                                        {backupCount} of {backupLimit} backups
+                                        {backupCount} de {backupLimit} copias
                                     </p>
                                 )}
-                                {backupLimit === 0 && <p className='text-sm text-red-400'>Backups disabled</p>}
+                                {backupLimit === 0 && <p className='text-sm text-red-400'>Copias de seguridad desactivada</p>}
 
                                 {/* Storage Usage Display */}
                                 {storage && (
@@ -331,19 +330,19 @@ const BackupContainer = () => {
                                             <>
                                                 <p
                                                     className='text-sm text-zinc-300 cursor-help'
-                                                    title={`${storage.used_mb?.toFixed(2) || 0}MB total (Repository: ${storage.repository_usage_mb?.toFixed(2) || 0}MB, Legacy: ${storage.legacy_usage_mb?.toFixed(2) || 0}MB)`}
+                                                    title={`${storage.used_mb?.toFixed(2) || 0}MB en total (Repositorio: ${storage.repository_usage_mb?.toFixed(2) || 0}MB, Legacy: ${storage.legacy_usage_mb?.toFixed(2) || 0}MB)`}
                                                 >
                                                     <span className='font-medium'>
                                                         {formatStorage(storage.used_mb)}
                                                     </span>{' '}
-                                                    storage used
+                                                    almacenamiento usado
                                                 </p>
                                                 {(storage.repository_usage_mb > 0 || storage.legacy_usage_mb > 0) &&
                                                     storage.repository_usage_mb > 0 &&
                                                     storage.legacy_usage_mb > 0 && (
                                                         <p className='text-xs text-zinc-400'>
                                                             {storage.repository_usage_mb > 0 &&
-                                                                `${formatStorage(storage.repository_usage_mb)} deduplicated`}
+                                                                `${formatStorage(storage.repository_usage_mb)} deduplicado`}
                                                             {storage.repository_usage_mb > 0 &&
                                                                 storage.legacy_usage_mb > 0 &&
                                                                 ' + '}
@@ -356,16 +355,16 @@ const BackupContainer = () => {
                                             <>
                                                 <p
                                                     className='text-sm text-zinc-300 cursor-help'
-                                                    title={`${storage.used_mb?.toFixed(2) || 0}MB used of ${backupStorageLimit}MB (Repository: ${storage.repository_usage_mb?.toFixed(2) || 0}MB, Legacy: ${storage.legacy_usage_mb?.toFixed(2) || 0}MB, ${storage.available_mb?.toFixed(2) || 0}MB Available)`}
+                                                    title={`${storage.used_mb?.toFixed(2) || 0}MB usadas de ${backupStorageLimit}MB (Repositorio: ${storage.repository_usage_mb?.toFixed(2) || 0}MB, Legacy: ${storage.legacy_usage_mb?.toFixed(2) || 0}MB, ${storage.available_mb?.toFixed(2) || 0}MB Disponibles)`}
                                                 >
                                                     <span className='font-medium'>
                                                         {formatStorage(storage.used_mb)}
                                                     </span>{' '}
                                                     {backupStorageLimit === null ? (
-                                                        'used'
+                                                        'usado'
                                                     ) : (
                                                         <span className='font-medium'>
-                                                            of {formatStorage(backupStorageLimit)} used
+                                                            de {formatStorage(backupStorageLimit)} usado
                                                         </span>
                                                     )}
                                                 </p>
@@ -374,7 +373,7 @@ const BackupContainer = () => {
                                                     storage.legacy_usage_mb > 0 && (
                                                         <p className='text-xs text-zinc-400'>
                                                             {storage.repository_usage_mb > 0 &&
-                                                                `${formatStorage(storage.repository_usage_mb)} deduplicated`}
+                                                                `${formatStorage(storage.repository_usage_mb)} deduplicado`}
                                                             {storage.repository_usage_mb > 0 &&
                                                                 storage.legacy_usage_mb > 0 &&
                                                                 ' + '}
@@ -418,8 +417,8 @@ const BackupContainer = () => {
                 }
             >
                 <p className='text-sm text-neutral-400 leading-relaxed'>
-                    Create and manage server backups to protect your data. Schedule automated backups, download existing
-                    ones, and restore when needed.
+                    Crea y gestiona copias de seguridad de tu servidor para proteger tus archivos. Programa copias automáticas,
+                    descarga las existentes y restáuralas cuando lo necesites.
                 </p>
             </MainPageHeader>
 
@@ -449,11 +448,11 @@ const BackupContainer = () => {
                 >
                     <div className='space-y-4'>
                         <p className='text-sm text-zinc-300'>
-                            You are about to permanently delete{' '}
+                            Estás a punto de eliminar{' '}
                             <span className='font-medium text-red-400'>
-                                {backupCount} {backupCount === 1 ? 'backup' : 'backups'}
+                                {backupCount} {backupCount === 1 ? 'copia' : 'copias'}
                             </span>{' '}
-                            and completely destroy the backup repository for this server.
+                            y eliminar el repositorio de copias de este servidor.
                         </p>
 
                         <div className='p-4 bg-red-500/10 border border-red-500/20 rounded-lg'>
@@ -472,13 +471,13 @@ const BackupContainer = () => {
                                     />
                                 </svg>
                                 <div className='text-sm'>
-                                    <p className='font-medium text-red-300'>This action cannot be undone</p>
+                                    <p className='font-medium text-red-300'>Esta acción no se puede deshacer</p>
                                     <ul className='text-red-400 mt-2 space-y-1 list-disc list-inside'>
-                                        <li>All backup data will be permanently deleted</li>
-                                        <li>Locked backups will also be deleted</li>
-                                        <li>The entire backup repository will be destroyed</li>
-                                        <li>This operation may take several minutes to complete</li>
-                                        <li>You will not be able to restore any of these backups</li>
+                                        <li>Todos los datos de la copia se eliminarán de forma permanente</li>
+                                        <li>Las copias bloqueadas también serán eliminadas</li>
+                                        <li>El repositorio de copias será eliminado totalmente</li>
+                                        <li>Esta operación podría tardar unos minutos en completarse</li>
+                                        <li>No podrás restaurar ninguna de estas copias</li>
                                     </ul>
                                 </div>
                             </div>
@@ -487,13 +486,13 @@ const BackupContainer = () => {
                         <div className='space-y-3'>
                             <div>
                                 <label htmlFor='password' className='block text-sm font-medium text-zinc-300 mb-1'>
-                                    Password
+                                    Contraseña
                                 </label>
                                 <input
                                     id='password'
                                     type='password'
                                     className='w-full px-4 py-2 rounded-lg outline-hidden bg-[#ffffff17] text-sm border border-zinc-700 focus:border-brand'
-                                    placeholder='Enter your password'
+                                    placeholder='Introduce tu contraseña'
                                     value={deleteAllPassword}
                                     onChange={(e) => setDeleteAllPassword(e.target.value)}
                                     disabled={isDeleting}
@@ -503,13 +502,13 @@ const BackupContainer = () => {
                             {hasTwoFactor && (
                                 <div>
                                     <label htmlFor='totp_code' className='block text-sm font-medium text-zinc-300 mb-1'>
-                                        Two-Factor Authentication Code
+                                        Autenticación de dos factores
                                     </label>
                                     <input
                                         id='totp_code'
                                         type='text'
                                         className='w-full px-4 py-2 rounded-lg outline-hidden bg-[#ffffff17] text-sm border border-zinc-700 focus:border-brand'
-                                        placeholder='6-digit code'
+                                        placeholder='Código de 6 dígitos'
                                         maxLength={6}
                                         value={deleteAllTotpCode}
                                         onChange={(e) => setDeleteAllTotpCode(e.target.value.replace(/[^0-9]/g, ''))}
@@ -529,11 +528,11 @@ const BackupContainer = () => {
                                 }}
                                 disabled={isDeleting}
                             >
-                                Cancel
+                                Cancelar
                             </ActionButton>
                             <ActionButton variant='danger' onClick={handleDeleteAll} disabled={isDeleting}>
                                 {isDeleting && <Spinner size='small' />}
-                                {isDeleting ? 'Deleting...' : 'Delete All Backups'}
+                                {isDeleting ? 'Eliminando...' : 'Eliminar copias'}
                             </ActionButton>
                         </div>
                     </div>
@@ -549,16 +548,16 @@ const BackupContainer = () => {
                         setBulkDeletePassword('');
                         setBulkDeleteTotpCode('');
                     }}
-                    title='Delete Selected Backups'
+                    title='Eliminar copias seleccionadas'
                 >
                     <FlashMessageRender byKey={'backups:bulk_delete'} />
                     <div className='space-y-4'>
                         <p className='text-sm text-zinc-300'>
-                            You are about to permanently delete{' '}
+                            Estás a punto de eliminar{' '}
                             <span className='font-medium text-red-400'>
-                                {selectedBackups.size} backup{selectedBackups.size > 1 ? 's' : ''}
+                                {selectedBackups.size} copia{selectedBackups.size > 1 ? 's' : ''}
                             </span>
-                            . This action cannot be undone.
+                            . Esta acción no se puede deshacer.
                         </p>
 
                         <div className='p-4 bg-red-500/10 border border-red-500/20 rounded-lg'>
@@ -577,10 +576,10 @@ const BackupContainer = () => {
                                     />
                                 </svg>
                                 <div className='text-sm'>
-                                    <p className='font-medium text-red-300'>Warning</p>
+                                    <p className='font-medium text-red-300'>Aviso</p>
                                     <p className='text-red-400 mt-1'>
-                                        The selected backup files and their snapshots will be permanently deleted. You
-                                        will not be able to restore them.
+                                    Los archivos de copia de seguridad seleccionados y sus instantáneas se eliminarán 
+                                    permanentemente. No podrás restaurarlos.
                                     </p>
                                 </div>
                             </div>
@@ -589,13 +588,13 @@ const BackupContainer = () => {
                         <div className='space-y-3'>
                             <div>
                                 <label htmlFor='bulk-password' className='block text-sm font-medium text-zinc-300 mb-1'>
-                                    Password
+                                    Contraseña
                                 </label>
                                 <input
                                     id='bulk-password'
                                     type='password'
                                     className='w-full px-4 py-2 rounded-lg outline-hidden bg-[#ffffff17] text-sm border border-zinc-700 focus:border-brand'
-                                    placeholder='Enter your password'
+                                    placeholder='Introduce tu contraseña'
                                     value={bulkDeletePassword}
                                     onChange={(e) => setBulkDeletePassword(e.target.value)}
                                     disabled={isBulkDeleting}
@@ -605,13 +604,13 @@ const BackupContainer = () => {
                             {hasTwoFactor && (
                                 <div>
                                     <label htmlFor='bulk-totp' className='block text-sm font-medium text-zinc-300 mb-1'>
-                                        Two-Factor Authentication Code
+                                        Código de autenticación de dos factores
                                     </label>
                                     <input
                                         id='bulk-totp'
                                         type='text'
                                         className='w-full px-4 py-2 rounded-lg outline-hidden bg-[#ffffff17] text-sm border border-zinc-700 focus:border-brand'
-                                        placeholder='6-digit code'
+                                        placeholder='Código de 6 dígitos'
                                         maxLength={6}
                                         value={bulkDeleteTotpCode}
                                         onChange={(e) => setBulkDeleteTotpCode(e.target.value.replace(/[^0-9]/g, ''))}
@@ -631,13 +630,13 @@ const BackupContainer = () => {
                                 }}
                                 disabled={isBulkDeleting}
                             >
-                                Cancel
+                                Cancelar
                             </ActionButton>
                             <ActionButton variant='danger' onClick={handleBulkDelete} disabled={isBulkDeleting}>
                                 {isBulkDeleting && <Spinner size='small' />}
                                 {isBulkDeleting
-                                    ? 'Deleting...'
-                                    : `Delete ${selectedBackups.size} Backup${selectedBackups.size > 1 ? 's' : ''}`}
+                                    ? 'Eliminando...'
+                                    : `Eliminar ${selectedBackups.size} copia${selectedBackups.size > 1 ? 's' : ''}`}
                             </ActionButton>
                         </div>
                     </div>
@@ -656,12 +655,12 @@ const BackupContainer = () => {
                             />
                         </div>
                         <h3 className='text-lg font-medium text-zinc-200 mb-2'>
-                            {backupLimit === 0 ? 'Backups unavailable' : 'No backups found'}
+                            {backupLimit === 0 ? 'No disponible' : 'No hay copias de seguridad'}
                         </h3>
                         <p className='text-sm text-zinc-400 max-w-sm'>
                             {backupLimit === 0
-                                ? 'Backups cannot be created for this server.'
-                                : 'Your server does not have any backups. Create one to get started.'}
+                                ? 'No se pueden ceear copias de seguridad en este servidor.'
+                                : 'Tu servidor no tiene ninguna copia. Crea una para empezar.'}
                         </p>
                     </div>
                 </div>
@@ -684,7 +683,7 @@ const BackupContainer = () => {
                                             <span className='font-medium'>{selectedBackups.size}</span> selected
                                         </>
                                     ) : (
-                                        'Select backups'
+                                        'Seleccionar copias'
                                     )}
                                 </span>
                             </div>
@@ -693,11 +692,11 @@ const BackupContainer = () => {
                                 className={`flex items-center gap-3 transition-opacity ${selectedBackups.size > 0 ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
                             >
                                 <ActionButton variant='secondary' onClick={clearSelection}>
-                                    Clear
+                                    Borrar selección
                                 </ActionButton>
                                 <Can action='backup.delete'>
                                     <ActionButton variant='danger' onClick={() => setBulkDeleteModalVisible(true)}>
-                                        Delete Selected ({selectedBackups.size})
+                                        Eliminar las ({selectedBackups.size}) seleccionadas
                                     </ActionButton>
                                 </Can>
                             </div>
@@ -780,7 +779,7 @@ const BackupContainerWrapper = () => {
                 const currentState = prevProgress[backup_uuid];
                 const newProgress = progress || 0;
                 const isCompleted = status === 'completed' && newProgress === 100;
-                const displayMessage = errorMsg ? `${message || 'Operation failed'}: ${errorMsg}` : message || '';
+                const displayMessage = errorMsg ? `${message || 'Operación fallida'}: ${errorMsg}` : message || '';
 
                 if (currentState?.completed && !isCompleted) {
                     return prevProgress;

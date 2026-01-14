@@ -43,11 +43,11 @@ const DeleteAllocationButton = ({ allocation }: Props) => {
             <Dialog.Confirm
                 open={confirm}
                 onClose={() => setConfirm(false)}
-                title={'Remove Allocation'}
-                confirm={'Delete'}
+                title={'Eliminar puerto'}
+                confirm={'Eliminar'}
                 onConfirmed={deleteAllocation}
             >
-                This allocation will be immediately removed from your server.
+                Este puerto se eliminará inmediatamente de tu servidor.
             </Dialog.Confirm>
             <ActionButton
                 variant='danger'
@@ -56,7 +56,7 @@ const DeleteAllocationButton = ({ allocation }: Props) => {
                 className='flex items-center gap-2'
             >
                 <TrashBin width={22} height={22} fill='currentColor' />
-                <span className='hidden sm:inline'>Delete</span>
+                <span className='hidden sm:inline'>Eliminar</span>
             </ActionButton>
         </>
     );

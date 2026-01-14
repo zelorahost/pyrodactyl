@@ -164,7 +164,7 @@ const Modal: React.FC<ModalProps> = ({
                                                 {closeButton && (
                                                     <div className={`my-6 sm:flex items-center justify-end`}>
                                                         <ActionButton onClick={onDismissed} className={`min-w-full`}>
-                                                            <div>Close</div>
+                                                            <div>Cerrar</div>
                                                         </ActionButton>
                                                     </div>
                                                 )}

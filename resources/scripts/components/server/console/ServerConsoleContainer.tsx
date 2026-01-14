@@ -57,7 +57,7 @@ const ServerConsoleContainer = () => {
     });
 
     return (
-        <ServerContentBlock title={'Home'}>
+        <ServerContentBlock title={'Inicio'}>
             <div className='w-full h-full min-h-full flex-1 flex flex-col px-2 sm:px-0'>
                 {(isNodeUnderMaintenance || isInstalling || isTransferring) && (
                     <div
@@ -70,10 +70,10 @@ const ServerConsoleContainer = () => {
                     >
                         <Alert type={'warning'}>
                             {isNodeUnderMaintenance
-                                ? 'The node of this server is currently under maintenance and all actions are unavailable.'
+                                ? 'El nodo en el que se aloja tu servidor se encuentra en mantenimiento. No puedes realizar ninguna acción.'
                                 : isInstalling
-                                    ? 'This server is currently running its installation process and most actions are unavailable.'
-                                    : 'This server is currently being transferred to another node and all actions are unavailable.'}
+                                    ? 'Tu servidor está siendo instalado. La mayoría de acciones no estarán disponibles.'
+                                    : 'Tu servidor está siendo transferido a otro nodo. No puedes realizar ninguna acción.'}
                         </Alert>
                     </div>
                 )}
@@ -89,7 +89,7 @@ const ServerConsoleContainer = () => {
                         title={name}
                         headChildren={
                             <p className='hidden bg-color ms:block ms:inline-flex md:inline-flex md:block absolute left-0 mb-4 mt-8 p-1 text-zinc-300 border-2 bg-gradient-to-b from-[#ffffff08] to-[#ffffff05] border-[#ffffff12] rounded-lg hover:border-[#ffffff20] transition-al283824000000l duration-150 shadow-sm '>
-                                Uptime: {UptimeDuration(uptime)}
+                                Tiempo de actividad: {UptimeDuration(uptime)}
                             </p>
                         }
                         titleChildren={
@@ -102,7 +102,7 @@ const ServerConsoleContainer = () => {
                                 }}
                             >
                                 <p className='inline-flex relative max-w-50 min-w-35 block ms:hidden md:hidden justify-left left-0 mb-4 p-1 text-zinc-300 border-2 bg-gradient-to-b from-[#ffffff08] to-[#ffffff05] border-[#ffffff12] rounded-lg hover:border-[#ffffff20] transition-all duration-150 shadow-sm '>
-                                    Uptime: {UptimeDuration(uptime)}
+                                    Tiempo de actividad: {UptimeDuration(uptime)}
                                 </p>
                                 <PowerButtons className='flex gap-1 items-center justify-center' />
                             </div>

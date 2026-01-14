@@ -83,7 +83,7 @@ const DashboardContainer = () => {
     }, [error]);
 
     return (
-        <PageContentBlock title={'Dashboard'} showFlashKey={'dashboard'}>
+        <PageContentBlock title={'Panel de control'} showFlashKey={'dashboard'}>
             <div className='w-full h-full min-h-full flex-1 flex flex-col px-2 sm:px-0'>
                 <Tabs
                     defaultValue={dashboardDisplayOption}
@@ -117,7 +117,7 @@ const DashboardContainer = () => {
                                                 onSelect={() => setServerViewMode('owner')}
                                                 className={serverViewMode === 'owner' ? 'bg-accent/20' : ''}
                                             >
-                                                Your Servers Only
+                                                Solo tus servidores
                                             </DropdownMenuItem>
 
                                             {rootAdmin && (
@@ -126,7 +126,7 @@ const DashboardContainer = () => {
                                                         onSelect={() => setServerViewMode('admin-all')}
                                                         className={serverViewMode === 'admin-all' ? 'bg-accent/20' : ''}
                                                     >
-                                                        All Servers (Admin)
+                                                        Todos los servidores (Admin)
                                                     </DropdownMenuItem>
                                                 </>
                                             )}
@@ -134,16 +134,16 @@ const DashboardContainer = () => {
                                                 onSelect={() => setServerViewMode('all')}
                                                 className={serverViewMode === 'all' ? 'bg-accent/20' : ''}
                                             >
-                                                All Servers
+                                                Todos los servidores
                                             </DropdownMenuItem>
                                         </DropdownMenuContent>
                                     </DropdownMenu>
 
                                     <TabsList>
-                                        <TabsTrigger aria-label='View servers in a list layout.' value='list'>
+                                        <TabsTrigger aria-label='Ver en formato de lista.' value='list'>
                                             <Bars width={18} height={20} color='white' />
                                         </TabsTrigger>
-                                        <TabsTrigger aria-label='View servers in a grid layout.' value='grid'>
+                                        <TabsTrigger aria-label='Ver en formato de cuadrícula.' value='grid'>
                                             <LayoutCellsLarge width={20} height={20} color='white' />
                                         </TabsTrigger>
                                     </TabsList>
@@ -188,13 +188,13 @@ const DashboardContainer = () => {
                                                     </div>
                                                     <h3 className='text-lg font-medium text-zinc-200 mb-2'>
                                                         {serverViewMode === 'admin-all'
-                                                            ? 'No other servers found'
-                                                            : 'No servers found'}
+                                                            ? 'No se han encontrado otros servidores'
+                                                            : 'No se han encontrado servidores'}
                                                     </h3>
                                                     <p className='text-sm text-zinc-400 max-w-sm'>
                                                         {serverViewMode === 'admin-all'
-                                                            ? 'There are no other servers to display.'
-                                                            : 'There are no servers associated with your account.'}
+                                                            ? 'No hay otros servidores para mostrar.'
+                                                            : 'No hay servidores asociados con tu cuenta.'}
                                                     </p>
                                                 </div>
                                             </div>
@@ -233,13 +233,13 @@ const DashboardContainer = () => {
                                                     </div>
                                                     <h3 className='text-lg font-medium text-zinc-200 mb-2'>
                                                         {serverViewMode === 'admin-all'
-                                                            ? 'No other servers found'
-                                                            : 'No servers found'}
+                                                            ? 'No se han encontrado otros servidores'
+                                                            : 'No se han encontrado servidores'}
                                                     </h3>
                                                     <p className='text-sm text-zinc-400 max-w-sm'>
                                                         {serverViewMode === 'admin-all'
-                                                            ? 'There are no other servers to display.'
-                                                            : 'There are no servers associated with your account.'}
+                                                            ? 'No hay otros servidores para mostrar.'
+                                                            : 'No hay servidores asociados con tu cuenta.'}
                                                     </p>
                                                 </div>
                                             </div>

@@ -34,11 +34,11 @@ const CommandMenu = () => {
     const cmdkPowerAction = (action: string) => {
         if (instance) {
             if (action === 'start') {
-                toast.success('Your server is starting!');
+                toast.success('Tu servidor se está iniciando...');
             } else if (action === 'restart') {
-                toast.success('Your server is restarting.');
+                toast.success('Tu servidor se está reiniciando...');
             } else {
-                toast.success('Your server is being stopped.');
+                toast.success('Tu servidor se está deteniendo...');
             }
             setOpen(false);
             instance.send('set state', action === 'kill-confirmed' ? 'kill' : action);
@@ -63,62 +63,62 @@ const CommandMenu = () => {
     }, []);
 
     return (
-        <Command.Dialog open={open} onOpenChange={setOpen} label='Global Command Menu'>
+        <Command.Dialog open={open} onOpenChange={setOpen} label='Menú de comandos'>
             <Command.Input />
             <Command.List>
-                <Command.Empty>No results found.</Command.Empty>
+                <Command.Empty>No se han encontrado resultados.</Command.Empty>
 
-                <Command.Group heading='Pages'>
+                <Command.Group heading='Páginas'>
                     <Command.Item onSelect={() => cmdkNavigate('')}>
                         <House fill='currentColor' />
-                        Home
+                        Inicio
                     </Command.Item>
                     <Can action={'file.*'} matchAny>
                         <Command.Item onSelect={() => cmdkNavigate('/files')}>
                             <FolderOpen fill='currentColor' />
-                            Files
+                            Archivos
                         </Command.Item>
                     </Can>
                     <Can action={'database.*'} matchAny>
                         <Command.Item onSelect={() => cmdkNavigate('/databases')}>
                             <Database fill='currentColor' />
-                            Databases
+                            Bases de datos
                         </Command.Item>
                     </Can>
                     <Can action={'backup.*'} matchAny>
                         <Command.Item onSelect={() => cmdkNavigate('/backups')}>
                             <CloudArrowUpIn fill='currentColor' />
-                            Backups
+                            Copias de seguridad
                         </Command.Item>
                     </Can>
                     <Can action={'allocation.*'} matchAny>
                         <Command.Item onSelect={() => cmdkNavigate('/network')}>
                             <BranchesDown fill='currentColor' />
-                            Networking
+                            Red
                         </Command.Item>
                     </Can>
                     <Can action={'user.*'} matchAny>
                         <Command.Item onSelect={() => cmdkNavigate('/users')}>
                             <Persons fill='currentColor' />
-                            Users
+                            Usuarios
                         </Command.Item>
                     </Can>
                     <Can action={['startup.*']} matchAny>
                         <Command.Item onSelect={() => cmdkNavigate('/startup')}>
                             <Terminal fill='currentColor' />
-                            Startup
+                            Inicio
                         </Command.Item>
                     </Can>
                     <Can action={['schedule.*']} matchAny>
                         <Command.Item onSelect={() => cmdkNavigate('/schedules')}>
                             <ClockArrowRotateLeft fill='currentColor' />
-                            Schedules
+                            Programas
                         </Command.Item>
                     </Can>
                     <Can action={['settings.*', 'file.sftp']} matchAny>
                         <Command.Item onSelect={() => cmdkNavigate('/settings')}>
                             <Gear fill='currentColor' />
-                            Settings
+                            Ajustes
                         </Command.Item>
                     </Can>
                     <Can action={['activity.*']} matchAny>
@@ -133,30 +133,32 @@ const CommandMenu = () => {
                             Mods/Plugins
                         </Command.Item>
                     </Can>
+                    {/*
                     <Can action={['software.*']} matchAny>
                         <Command.Item onSelect={() => cmdkNavigate('/shell')}>
                             <Box fill='currentColor' />
                             Software
                         </Command.Item>
                     </Can>
+                    */}
                 </Command.Group>
-                <Command.Group heading='Server'>
+                <Command.Group heading='Servidor'>
                     <Can action={'control.start'}>
                         <Command.Item disabled={status !== 'offline'} onSelect={() => cmdkPowerAction('start')}>
                             <Power fill='currentColor' />
-                            Start Server
+                            Iniciar servidor
                         </Command.Item>
                     </Can>
                     <Can action={'control.restart'}>
                         <Command.Item disabled={!status} onSelect={() => cmdkPowerAction('restart')}>
                             <Power fill='currentColor' />
-                            Restart Server
+                            Reiniciar servidor
                         </Command.Item>
                     </Can>
                     <Can action={'control.restart'}>
                         <Command.Item disabled={status === 'offline'} onSelect={() => cmdkPowerAction('stop')}>
                             <Power fill='currentColor' />
-                            Stop Server
+                            Detener servidor
                         </Command.Item>
                     </Can>
                 </Command.Group>

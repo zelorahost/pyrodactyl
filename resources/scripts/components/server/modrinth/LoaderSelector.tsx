@@ -94,7 +94,7 @@ export const LoaderSelector = ({ maxVisible = 7, featuredLoaders = DEFAULT_LOADE
             <div className='relative'>
                 <Input
                     type='text'
-                    placeholder='Search loaders...'
+                    placeholder='Buscar cargadores...'
                     value={searchQuery}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
                     className='w-full pl-3 pr-8 py-2 text-sm'
@@ -113,7 +113,7 @@ export const LoaderSelector = ({ maxVisible = 7, featuredLoaders = DEFAULT_LOADE
             <div className='space-y-2 max-h-80 overflow-y-auto'>
                 {loadersToShow.length === 0 ? (
                     <p className='text-sm text-gray-500 text-center py-2'>
-                        No loaders matching &quot;{searchQuery}&quot;
+                        No se ha encontrado ningún cargador con &quot;{searchQuery}&quot;
                     </p>
                 ) : (
                     loadersToShow.map((loader) => (
@@ -134,14 +134,14 @@ export const LoaderSelector = ({ maxVisible = 7, featuredLoaders = DEFAULT_LOADE
 
             {/* Selection counter and clear search */}
             <div className='flex justify-between items-center pt-2 border-t border-gray-200'>
-                <span className='text-xs text-gray-500'>{selectedLoaders.length} selected</span>
+                <span className='text-xs text-gray-500'>{selectedLoaders.length} seleccionado(s)</span>
 
                 {searchQuery && (
                     <button
                         onClick={() => setSearchQuery('')}
                         className='text-xs text-gray-600 hover:text-gray-800 font-medium'
                     >
-                        Clear search
+                        Limpiar búsqueda
                     </button>
                 )}
             </div>
@@ -154,7 +154,7 @@ export const LoaderSelector = ({ maxVisible = 7, featuredLoaders = DEFAULT_LOADE
                         className='w-full text-xs text-white hover:text-gray-300 py-2 rounded-md transition-colors duration-150 flex items-center justify-center gap-1.5'
                     >
                         <span className='transform transition-transform duration-200'>▾</span>
-                        Show {featured.length + other.length - maxVisible} more loaders
+                        Mostrar {featured.length + other.length - maxVisible} cargadores más
                     </button>
                 </div>
             )}
@@ -166,7 +166,7 @@ export const LoaderSelector = ({ maxVisible = 7, featuredLoaders = DEFAULT_LOADE
                         className='w-full text-xs text-white hover:text-gray-300 py-2 rounded-md transition-colors duration-150 flex items-center justify-center gap-1.5'
                     >
                         <span className='transform transition-transform duration-200 rotate-180'>▾</span>
-                        Show less
+                        Mostrar menos
                     </button>
                 </div>
             )}
@@ -177,7 +177,7 @@ export const LoaderSelector = ({ maxVisible = 7, featuredLoaders = DEFAULT_LOADE
                     onClick={() => setSearchQuery('')}
                     className='w-full text-xs text-white hover:text-gray-300 py-1 border-t border-gray-200 mt-2'
                 >
-                    Clear search
+                    Limpiar búsqueda
                 </button>
             )}
         </div>

@@ -92,8 +92,8 @@ const JavaVersionModalFeature = () => {
             <div className='flex flex-col gap-4 w-full h-full'>
                 {/*<FlashMessageRender key={'feature:javaVersion'} />*/}
                 <p>
-                    This server is currently running an unsupported version of Java and cannot be started. Please select
-                    a supported version from the list below to continue starting the server.
+                    Este servidor está ejecutando una versión de Java sin soporte y no puede iniciarse. Por favor, selecciona
+                    una versión soportada de la lista a continuación para continuar.
                 </p>
                 <div className={`mt-6 flex flex-row justify-end items-center gap-3 my-4`}>
                     <Can action={'startup.docker-image'}>
@@ -109,7 +109,7 @@ const JavaVersionModalFeature = () => {
                                         .pop()
                                         ?.split('_')
                                         .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                                        .join(' ') || 'Select a version'}
+                                        .join(' ') || 'Selecciona una versión'}
                                     {dropDownOpen ? (
                                         <ChevronUp fill={'currentColor'} className={`ml-2 w-[16px] h-[16px]`} />
                                     ) : (
@@ -134,7 +134,7 @@ const JavaVersionModalFeature = () => {
                     </Button> */}
                     <Can action={'startup.docker-image'}>
                         <ActionButton variant='primary' onClick={updateJava} className={`w-full sm:w-auto`}>
-                            Update
+                            Actualizar
                         </ActionButton>
                     </Can>
                 </div>

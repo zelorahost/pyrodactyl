@@ -77,7 +77,7 @@ const ModrinthContainerInner = () => {
                 setIsInitialized(true);
             } catch (error) {
                 console.error('Initial fetch error:', error);
-                toast.error(error instanceof Error ? error.message : 'Failed to fetch initial data');
+                toast.error(error instanceof Error ? error.message : 'No se ha podido obtener la información inicial');
                 setLoaderLoading(false);
                 setVersionLoading(false);
             }
@@ -109,19 +109,19 @@ const ModrinthContainerInner = () => {
             <div className='flex flex-wrap gap-4'>
                 <ContentBox
                     className='p-8 bg-[#ffffff09] border-[1px] border-[#ffffff11] shadow-xs rounded-xl w-full md:w-1/6'
-                    title='Settings'
+                    title='Ajustes'
                 >
                     <Can action={'modrinth.loader'}>
                         <ModBox>
-                            <ContentBox title='Loader' className=''>
-                                {isLoadingLoader ? <p>Loading loaders...</p> : <LoaderSelector />}
+                            <ContentBox title='Cargador' className=''>
+                                {isLoadingLoader ? <p>Cargando cargadores...</p> : <LoaderSelector />}
                             </ContentBox>
                         </ModBox>
                     </Can>
                     <Can action={'modrinth.version'}>
                         <ModBox>
-                            <ContentBox title='Version' className='scrollbar-thumb-red-700'>
-                                {isLoadingVersion ? <p>Loading versions...</p> : <GameVersionSelector />}
+                            <ContentBox title='Versión' className='scrollbar-thumb-red-700'>
+                                {isLoadingVersion ? <p>Cargando versiones...</p> : <GameVersionSelector />}
                             </ContentBox>
                         </ModBox>
                     </Can>
@@ -129,7 +129,7 @@ const ModrinthContainerInner = () => {
 
                 <ContentBox
                     className='p-8 bg-[#ffffff09] border-[1px] border-[#ffffff11] shadow-xs rounded-xl w-full md:w-4/5'
-                    title='Downloader'
+                    title='Descargar'
                 >
                     <div className='relative w-full h-full mb-4'>
                         <svg
@@ -149,7 +149,7 @@ const ModrinthContainerInner = () => {
                         <input
                             className='pl-14 pr-4 py-4 w-full rounded-lg bg-[#ffffff11] text-sm font-bold'
                             type='text'
-                            placeholder='Search'
+                            placeholder='Buscar'
                             value={searchTerm}
                             onChange={handleInputChange}
                         />
