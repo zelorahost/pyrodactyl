@@ -15,7 +15,7 @@ const DownloadModrinth: React.FC<DownloadProps> = ({ url, serverUuid, directory 
     const downloadAndUploadFile = async () => {
         setLoading(true);
         try {
-            toast.info('Descargando archivo de Modrinth..');
+            toast.info('Descargando archivo de Modrinth...');
 
             // 1️⃣ Download the file from Modrinth
             const downloadResponse = await axios.get(url, {

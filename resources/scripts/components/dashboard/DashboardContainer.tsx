@@ -27,9 +27,9 @@ import { MainPageHeader } from '../elements/MainPageHeader';
 
 const DashboardContainer = () => {
     const getTitle = () => {
-        if (serverViewMode === 'admin-all') return 'All Servers (Admin)';
-        if (serverViewMode === 'all') return 'All Accessible Servers';
-        return 'Your Servers';
+        if (serverViewMode === 'admin-all') return 'Todos los servidores (Admin)';
+        if (serverViewMode === 'all') return 'Todos los servidores disponibles';
+        return 'Tus servidores';
     };
 
     const { search } = useLocation();

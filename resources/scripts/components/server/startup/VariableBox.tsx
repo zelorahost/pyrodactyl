@@ -98,11 +98,11 @@ const VariableBox = ({ variable }: Props) => {
                         <span className='text-sm font-medium text-neutral-300'>
                             {isStringSwitch
                                 ? variable.serverValue === 'true'
-                                    ? 'Enabled'
-                                    : 'Disabled'
+                                    ? 'Habilitado'
+                                    : 'Deshabilitado'
                                 : variable.serverValue === '1'
-                                  ? 'On'
-                                  : 'Off'}
+                                  ? 'Encendido'
+                                  : 'Apagado'}
                         </span>
                         <Switch
                             disabled={!canEdit || !variable.isEditable}
@@ -177,7 +177,7 @@ const VariableBox = ({ variable }: Props) => {
                                 readOnly={!canEdit || !variable.isEditable}
                                 name={variable.envVariable}
                                 defaultValue={variable.serverValue ?? ''}
-                                placeholder={variable.defaultValue || 'Enter value...'}
+                                placeholder={variable.defaultValue || 'Introduce el valor...'}
                                 disabled={!canEdit || !variable.isEditable}
                             />
                         )}

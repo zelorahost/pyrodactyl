@@ -40,7 +40,7 @@ export const ModCard = ({ mod }: ModCardProps) => {
                         </div>
                     ) : (
                         <div className='w-20 h-20 bg-gradient-to-br from-[#131313] to-[#1a1a1a] rounded-xl flex items-center justify-center shadow-inner border border-gray-700/30'>
-                            <span className='text-gray-400 text-sm font-medium'>No Icon</span>
+                            <span className='text-gray-400 text-sm font-medium'>Sin icono</span>
                         </div>
                     )}
                 </div>
@@ -54,7 +54,7 @@ export const ModCard = ({ mod }: ModCardProps) => {
                         >
                             {mod.title}
                         </Link>
-                        <p className='text-sm text-gray-400 mt-1 font-medium'>by {mod.author}</p>
+                        <p className='text-sm text-gray-400 mt-1 font-medium'>por {mod.author}</p>
                     </div>
 
                     <p className='text-gray-500 leading-relaxed line-clamp-2 text-sm'>{mod.description}</p>
@@ -71,7 +71,7 @@ export const ModCard = ({ mod }: ModCardProps) => {
                                 />
                             </svg>
                             <span className='font-semibold text-gray-300'>
-                                downloads: {formatDownloads(mod.downloads)}
+                                descargas: {formatDownloads(mod.downloads)}
                             </span>
                         </div>
 
@@ -84,7 +84,7 @@ export const ModCard = ({ mod }: ModCardProps) => {
                             >
                                 <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2} d='M5 13l4 4L19 7' />
                             </svg>
-                            <span className='font-semibold text-gray-300'>latest: {mod.latest_version}</span>
+                            <span className='font-semibold text-gray-300'>última versión: {mod.latest_version}</span>
                         </div>
                     </div>
                 </div>
@@ -92,7 +92,7 @@ export const ModCard = ({ mod }: ModCardProps) => {
                 <div className='flex-shrink-0 self-center align-text-left'>
                     <Button className='border-gray-500/70 border-2 rounded-md transition delay-50 duration-325 hover:border-brand/50 hover:text-gray-200 '>
                         <ArrowDownToLine width={22} height={22} className='px-1' />
-                        Install
+                        Instalar
                     </Button>
                 </div>
             </div>

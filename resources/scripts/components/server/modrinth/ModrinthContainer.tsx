@@ -55,7 +55,7 @@ const ModrinthContainerInner = () => {
 
             const initialized = await ModrinthService.init(appVersion);
             if (!initialized) {
-                toast.error('Failed to initialize Modrinth API');
+                toast.error('No se ha podido inicializar la API de Modrinth');
                 return;
             }
 
