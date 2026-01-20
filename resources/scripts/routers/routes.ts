@@ -245,16 +245,6 @@ const routes: Routes = {
             end: true,
         },
         {
-            route: 'shell/*',
-            path: 'shell',
-            //permission: 'startup.software',
-            permission: 'settings.software',
-            name: 'Software',
-            component: ShellContainer,
-            icon: Box,
-            end: true,
-        },
-        {
             route: 'mods/*',
             path: 'mods',
             permission: ['modrinth.download', 'settings.modrinth'],
