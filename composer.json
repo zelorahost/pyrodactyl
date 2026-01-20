@@ -16,6 +16,12 @@
             "role": "Former Maintainer"
         }
     ],
+    "repositories": [                                             
+        {                                                         
+            "type": "vcs",                                        
+            "url": "https://github.com/zelorahost/sso-pterodactyl"
+        }                                         
+    ], 
     "require": {
         "php": "^8.3 || ^8.4",
         "ext-json": "*",
@@ -50,7 +56,8 @@
         "symfony/mailgun-mailer": "~7.1.3",
         "symfony/postmark-mailer": "~7.1.1",
         "symfony/yaml": "~7.1.5",
-        "webmozart/assert": "~1.11.0"
+        "webmozart/assert": "~1.11.0",
+        "wemx/sso-pterodactyl": "dev-main"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "~3.6.0",
