@@ -127,6 +127,7 @@ const ModalContent = ({ ...props }: RequiredModalProps) => {
 const BackupContainer = () => {
     const { page, setPage } = useContext(ServerBackupContext);
     const { clearFlashes, clearAndAddHttpError, addFlash } = useFlash();
+    const liveProgress = useContext(LiveProgressContext);
     const [createModalVisible, setCreateModalVisible] = useState(false);
     const [deleteAllModalVisible, setDeleteAllModalVisible] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
@@ -149,6 +150,9 @@ const BackupContainer = () => {
     const uuid = ServerContext.useStoreState((state) => state.server.data!.uuid);
     const backupLimit = ServerContext.useStoreState((state) => state.server.data!.featureLimits.backups);
     const backupStorageLimit = ServerContext.useStoreState((state) => state.server.data!.featureLimits.backupStorageMb);
+
+    // Check if any backup operation is in progress
+    const hasActiveOperation = Object.values(liveProgress).some((op) => !op.completed);
 
     useEffect(() => {
         clearFlashes('backups:create');
@@ -388,7 +392,11 @@ const BackupContainer = () => {
                             </div>
                             <div className='flex gap-2'>
                                 {backupCount > 0 && (
-                                    <ActionButton variant='danger' onClick={() => setDeleteAllModalVisible(true)}>
+                                    <ActionButton
+                                        variant='danger'
+                                        onClick={() => setDeleteAllModalVisible(true)}
+                                        disabled={hasActiveOperation}
+                                    >
                                         <svg
                                             className='w-4 h-4 mr-2'
                                             fill='none'
@@ -407,7 +415,11 @@ const BackupContainer = () => {
                                 )}
                                 {(backupLimit === null || backupLimit > backupCount) &&
                                     (!backupStorageLimit || !storage?.is_over_limit) && (
-                                        <ActionButton variant='primary' onClick={() => setCreateModalVisible(true)}>
+                                        <ActionButton
+                                            variant='primary'
+                                            onClick={() => setCreateModalVisible(true)}
+                                            disabled={hasActiveOperation}
+                                        >
                                             New Backup
                                         </ActionButton>
                                     )}
@@ -418,7 +430,8 @@ const BackupContainer = () => {
             >
                 <p className='text-sm text-neutral-400 leading-relaxed'>
                     Crea y gestiona copias de seguridad de tu servidor para proteger tus archivos. Programa copias automáticas,
-                    descarga las existentes y restáuralas cuando lo necesites.
+                    descarga las existentes y restáuralas cuando lo necesites. Las copias son deduplicadas, lo que significa
+                    que los archivos sin cambios se comparten entre todas las copias para ocupar menos espacio.
                 </p>
             </MainPageHeader>
 
@@ -813,6 +826,7 @@ const BackupContainerWrapper = () => {
                 if (isDeletionOperation) {
                     // Optimistically remove the deleted backup from SWR cache immediately
                     // note: this is incredibly buggy sometimes, somebody please refactor how "live" backups work. - ellie
+                    // Changed this to use "revalidate: false" so the optimistic update persists - tyr
                     mutate(
                         (currentData) => {
                             if (!currentData) return currentData;
@@ -822,17 +836,15 @@ const BackupContainerWrapper = () => {
                                 backupCount: Math.max(0, (currentData.backupCount || 0) - 1),
                             };
                         },
-                        { revalidate: true },
+                        { revalidate: false },
                     );
 
-                    // Remove from live progress
-                    setTimeout(() => {
-                        setLiveProgress((prev) => {
-                            const updated = { ...prev };
-                            delete updated[backup_uuid];
-                            return updated;
-                        });
-                    }, 500);
+                    // Remove from live progress immediately
+                    setLiveProgress((prev) => {
+                        const updated = { ...prev };
+                        delete updated[backup_uuid];
+                        return updated;
+                    });
                 } else {
                     // For new backups, wait for them to appear in the API
                     mutate();

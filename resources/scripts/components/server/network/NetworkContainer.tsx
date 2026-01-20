@@ -78,14 +78,12 @@ const NetworkContainer = () => {
                                 <div className='flex items-center gap-4'>
                                     {allocationLimit === null && (
                                         <span className='text-sm text-zinc-400 bg-[#ffffff08] px-3 py-1 rounded-lg border border-[#ffffff15]'>
-                                            {data.filter((allocation) => !allocation.isDefault).length} puertos
-                                            (ilimitados)
+                                            {data.length} asignaciones (ilimitadas)
                                         </span>
                                     )}
                                     {allocationLimit > 0 && (
                                         <span className='text-sm text-zinc-400 bg-[#ffffff08] px-3 py-1 rounded-lg border border-[#ffffff15]'>
-                                            {data.filter((allocation) => !allocation.isDefault).length} de{' '}
-                                            {allocationLimit}
+                                            {data.length} de {allocationLimit}
                                         </span>
                                     )}
                                     {allocationLimit === 0 && (
@@ -94,13 +92,11 @@ const NetworkContainer = () => {
                                         </span>
                                     )}
                                     {(allocationLimit === null ||
-                                        (allocationLimit > 0 &&
-                                            allocationLimit >
-                                                data.filter((allocation) => !allocation.isDefault).length)) && (
-                                        <ActionButton variant='primary' onClick={onCreateAllocation} size='sm'>
-                                            Nueva asignación
-                                        </ActionButton>
-                                    )}
+                                        (allocationLimit > 0 && allocationLimit > data.length)) && (
+                                            <ActionButton variant='primary' onClick={onCreateAllocation} size='sm'>
+                                                Nueva asignación
+                                            </ActionButton>
+                                        )}
                                 </div>
                             </Can>
                         )}

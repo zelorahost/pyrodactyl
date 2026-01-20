@@ -1,6 +1,7 @@
 import ModalContext from '@/context/ModalContext';
 import { TZDate } from '@date-fns/tz';
 import { Link, TriangleExclamation } from '@gravity-ui/icons';
+import { toString } from 'cronstrue';
 import { format } from 'date-fns';
 import { useStoreState } from 'easy-peasy';
 import { Form, Formik, FormikHelpers } from 'formik';
@@ -101,6 +102,35 @@ const formatTimezoneDisplay = (timezone: string, offset: string) => {
     return `${timezone} (${offset})`;
 };
 
+const getCronDescription = (
+    minute: string,
+    hour: string,
+    dayOfMonth: string,
+    month: string,
+    dayOfWeek: string,
+): string => {
+    try {
+        // Build cron expression: minute hour dayOfMonth month dayOfWeek
+        const cronExpression = `${minute} ${hour} ${dayOfMonth} ${month} ${dayOfWeek}`;
+        const description = toString(cronExpression, {
+            throwExceptionOnParseError: false,
+            verbose: true,
+        });
+
+        // Check if cronstrue returned an error message
+        if (
+            description ===
+            'An error occurred when generating the expression description. Check the cron expression syntax.'
+        ) {
+            return 'Invalid cron expression';
+        }
+
+        return description;
+    } catch {
+        return 'Invalid cron expression.';
+    }
+};
+
 const EditScheduleModal = ({ schedule }: Props) => {
     const { addError, clearFlashes } = useFlash();
     const { dismiss, setPropOverrides } = useContext(ModalContext);
@@ -167,89 +197,102 @@ const EditScheduleModal = ({ schedule }: Props) => {
                 } as Values
             }
         >
-            {({ isSubmitting }) => (
-                <Form>
-                    <FlashMessageRender byKey={'schedule:edit'} />
-                    <Field
-                        name={'name'}
-                        label={'Nombre del programa'}
-                        description={'Un nombre que te ayude a identificar este programa.'}
-                    />
-                    <div className={`grid grid-cols-2 sm:grid-cols-5 gap-4 mt-6`}>
-                        <Field name={'minute'} label={'Minuto'} />
-                        <Field name={'hour'} label={'Hora'} />
-                        <Field name={'dayOfWeek'} label={'Día de la semana'} />
-                        <Field name={'dayOfMonth'} label={'Día del mes'} />
-                        <Field name={'month'} label={'Mes'} />
-                    </div>
+            {({ isSubmitting, values }) => {
+                const cronDescription = getCronDescription(
+                    values.minute,
+                    values.hour,
+                    values.dayOfMonth,
+                    values.month,
+                    values.dayOfWeek,
+                );
+
+                return (
+                    <Form>
+                        <FlashMessageRender byKey={'schedule:edit'} />
+                        <Field
+                            name={'name'}
+                            label={'Nombre del programa'}
+                            description={'Un nombre que te ayude a identificar este programa.'}
+                        />
+                        <div className={`grid grid-cols-2 sm:grid-cols-5 gap-4 mt-6`}>
+                            <Field name={'minute'} label={'Minuto'} />
+                            <Field name={'hour'} label={'Hora'} />
+                            <Field name={'dayOfWeek'} label={'Día de la semana'} />
+                            <Field name={'dayOfMonth'} label={'Día del mes'} />
+                            <Field name={'month'} label={'Mes'} />
+                        </div>
+
+                        <div className={`mt-3 p-3 rounded-lg bg-zinc-800/50 border border-zinc-700/50`}>
+                            <p className={`text-sm text-zinc-200 font-medium`}>{cronDescription}</p>
+                        </div>
 
                     <p className={`text-zinc-400 text-xs mt-2`}>
                         El sistema de programas usa sintaxis Cronjob para definir cuándo se ejecutarán las tareas. Usa los
                         campos superiores para configurar el horario.
                     </p>
 
-                    {timezoneInfo.isDifferent && (
-                        <div className={'bg-blue-900/20 border border-blue-400/30 rounded-lg p-4 my-2'}>
-                            <div className={'flex items-start gap-3'}>
-                                <TriangleExclamation
-                                    width={22}
-                                    height={22}
-                                    fill='currentColor'
-                                    className={'text-blue-400 mt-0.5 flex-shrink-0 h-5 w-5'}
-                                />
-                                <div className={'text-sm'}>
-                                    <p className={'text-blue-100 font-medium mb-1'}>Información de la zona horaria</p>
-                                    <p className={'text-blue-200/80 text-xs mb-2'}>
-                                        Aquí se muestran los tiempos configurados para la zona horaria del servidor.
-                                        {timezoneInfo.difference !== 'same time' && (
-                                            <span className={'text-blue-100 font-medium'}>
-                                                {' '}
-                                                El servidor está {timezoneInfo.difference} tu zona horaria.
-                                            </span>
-                                        )}
-                                    </p>
-                                    <div className={'mt-2 text-xs space-y-1'}>
-                                        <div className={'text-blue-200/60'}>
-                                            Tu zona horaria:
-                                            <span className={'font-mono'}>
-                                                {' '}
-                                                {formatTimezoneDisplay(
-                                                    timezoneInfo.user.timezone,
-                                                    timezoneInfo.user.offset,
-                                                )}
-                                            </span>
-                                        </div>
-                                        <div className={'text-blue-200/60'}>
-                                            Zona horaria del servidor:
-                                            <span className={'font-mono'}>
-                                                {' '}
-                                                {formatTimezoneDisplay(
-                                                    timezoneInfo.server.timezone,
-                                                    timezoneInfo.server.offset,
-                                                )}
-                                            </span>
+                        {timezoneInfo.isDifferent && (
+                            <div className={'bg-blue-900/20 border border-blue-400/30 rounded-lg p-4 my-2'}>
+                                <div className={'flex items-start gap-3'}>
+                                    <TriangleExclamation
+                                        width={22}
+                                        height={22}
+                                        fill='currentColor'
+                                        className={'text-blue-400 mt-0.5 flex-shrink-0 h-5 w-5'}
+                                    />
+                                    <div className={'text-sm'}>
+                                        <p className={'text-blue-100 font-medium mb-1'}>Información de la Zona Horaria</p>
+                                        <p className={'text-blue-200/80 text-xs mb-2'}>
+                                            Los tiempos mostrados aquí están configurados para la zona horaria del servidor.
+                                            {timezoneInfo.difference !== 'same time' && (
+                                                <span className={'text-blue-100 font-medium'}>
+                                                    {' '}
+                                                    La diferencia respecto a tu huso horario es de: {timezoneInfo.difference}
+                                                </span>
+                                            )}
+                                        </p>
+                                        <div className={'mt-2 text-xs space-y-1'}>
+                                            <div className={'text-blue-200/60'}>
+                                                Tu zona horaria:
+                                                <span className={'font-mono'}>
+                                                    {' '}
+                                                    {formatTimezoneDisplay(
+                                                        timezoneInfo.user.timezone,
+                                                        timezoneInfo.user.offset,
+                                                    )}
+                                                </span>
+                                            </div>
+                                            <div className={'text-blue-200/60'}>
+                                                Zona horaria del servidor:
+                                                <span className={'font-mono'}>
+                                                    {' '}
+                                                    {formatTimezoneDisplay(
+                                                        timezoneInfo.server.timezone,
+                                                        timezoneInfo.server.offset,
+                                                    )}
+                                                </span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    )}
+                        )}
 
-                    <div className='gap-3 my-6 flex flex-col'>
-                        <a href='https://crontab.guru/' target='_blank' rel='noreferrer'>
-                            <ItemContainer
-                                description={'Editor en línea de expresiones Crontab.'}
-                                title={'Gurú Crontab'}
-                                // defaultChecked={showCheatsheet}
-                                // onChange={() => setShowCheetsheet((s) => !s)}
-                                labelClasses='cursor-pointer'
-                            >
-                                <Link width={22} height={22} fill='currentColor' className={`px-5 h-5 w-5`} />
-                            </ItemContainer>
-                        </a>
-                        {/* This table would be pretty awkward to make look nice
+                        <div className='gap-3 my-6 flex flex-col'>
+                            <a href='https://crontab.guru/' target='_blank' rel='noreferrer'>
+                                <ItemContainer
+                                    description={'Editor en línea para expresiones Crontab.'}
+                                    title={'Crontab Guru'}
+                                    // defaultChecked={showCheatsheet}
+                                    // onChange={() => setShowCheetsheet((s) => !s)}
+                                    labelClasses='cursor-pointer'
+                                >
+                                    <Link width={22} height={22} fill='currentColor' className={`px-5 h-5 w-5`} />
+                                </ItemContainer>
+                            </a>
+                            {/* This table would be pretty awkward to make look nice
                             Maybe there could be an element for a dropdown later? */}
-                        {/* {showCheatsheet && (
+                            {/* {showCheatsheet && (
                             <div className={`block md:flex w-full`}>
                                 <ScheduleCheatsheetCards />
                             </div>
