@@ -226,10 +226,10 @@ const EditScheduleModal = ({ schedule }: Props) => {
                             <p className={`text-sm text-zinc-200 font-medium`}>{cronDescription}</p>
                         </div>
 
-                    <p className={`text-zinc-400 text-xs mt-2`}>
+                        <p className={`text-zinc-400 text-xs mt-2`}>
                         El sistema de programas usa sintaxis Cronjob para definir cuándo se ejecutarán las tareas. Usa los
                         campos superiores para configurar el horario.
-                    </p>
+                        </p>
 
                         {timezoneInfo.isDifferent && (
                             <div className={'bg-blue-900/20 border border-blue-400/30 rounded-lg p-4 my-2'}>
@@ -241,13 +241,13 @@ const EditScheduleModal = ({ schedule }: Props) => {
                                         className={'text-blue-400 mt-0.5 flex-shrink-0 h-5 w-5'}
                                     />
                                     <div className={'text-sm'}>
-                                        <p className={'text-blue-100 font-medium mb-1'}>Información de la Zona Horaria</p>
+                                        <p className={'text-blue-100 font-medium mb-1'}>Información de la zona horaria</p>
                                         <p className={'text-blue-200/80 text-xs mb-2'}>
-                                            Los tiempos mostrados aquí están configurados para la zona horaria del servidor.
+                                            Los tiempos mostrados aquí son respecto a la zona horaria del servidor.
                                             {timezoneInfo.difference !== 'same time' && (
                                                 <span className={'text-blue-100 font-medium'}>
                                                     {' '}
-                                                    La diferencia respecto a tu huso horario es de: {timezoneInfo.difference}
+                                                    La diferencia entre tu zona horaria y la del servidor es de: {timezoneInfo.difference}.
                                                 </span>
                                             )}
                                         </p>
@@ -281,7 +281,7 @@ const EditScheduleModal = ({ schedule }: Props) => {
                         <div className='gap-3 my-6 flex flex-col'>
                             <a href='https://crontab.guru/' target='_blank' rel='noreferrer'>
                                 <ItemContainer
-                                    description={'Editor en línea para expresiones Crontab.'}
+                                    description={'Editor en línea para expresiones cron.'}
                                     title={'Crontab Guru'}
                                     // defaultChecked={showCheatsheet}
                                     // onChange={() => setShowCheetsheet((s) => !s)}
@@ -297,29 +297,30 @@ const EditScheduleModal = ({ schedule }: Props) => {
                                 <ScheduleCheatsheetCards />
                             </div>
                         )} */}
-                        <FormikSwitchV2
-                            name={'onlyWhenOnline'}
-                            description={'Este programa solo se ejecutará cuando el servidor se encuentre en línea.'}
-                            label={'Cuando esté en línea'}
-                        />
-                        <FormikSwitchV2
-                            name={'enabled'}
-                            description={'Este programa se ejecutará automáticamente habilitando esta casilla.'}
-                            label={'Automatizado'}
-                        />
-                    </div>
-                    <div className={`mb-6 text-right`}>
-                        <ActionButton
-                            variant='primary'
-                            className={'w-full sm:w-auto'}
-                            type={'submit'}
-                            disabled={isSubmitting}
-                        >
-                            {schedule ? 'Guardar cambios' : 'Crear programa'}
-                        </ActionButton>
-                    </div>
-                </Form>
-            )}
+                            <FormikSwitchV2
+                                name={'onlyWhenOnline'}
+                                description={'Ejecutar solo si el servidor está en línea.'}
+                                label={'Si está en línea'}
+                            />
+                            <FormikSwitchV2
+                                name={'enabled'}
+                                description={'El programa se ejecutará automáticamente si se habilita.'}
+                                label={'Programa habilitado'}
+                            />
+                        </div>
+                        <div className={`mb-6 text-right`}>
+                            <ActionButton
+                                variant='primary'
+                                className={'w-full sm:w-auto'}
+                                type={'submit'}
+                                disabled={isSubmitting}
+                            >
+                                {schedule ? 'Guardar cambios' : 'Crear programa'}
+                            </ActionButton>
+                        </div>
+                    </Form>
+                );
+            }}
         </Formik>
     );
 };
