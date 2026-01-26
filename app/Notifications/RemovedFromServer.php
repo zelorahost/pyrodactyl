@@ -36,6 +36,7 @@ class RemovedFromServer extends Notification implements ShouldQueue
     {
         return (new MailMessage())
             ->error()
+            ->subject('Acceso revocado')
             ->greeting('Hola ' . $this->server->user . ',')
             ->line('Alguien te ha revocado el acceso al panel del siguiente servidor:')
             ->line('Nombre del servidor: ' . $this->server->name)

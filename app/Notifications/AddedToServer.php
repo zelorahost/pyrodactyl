@@ -35,6 +35,7 @@ class AddedToServer extends Notification implements ShouldQueue
     public function toMail(): MailMessage
     {
         return (new MailMessage())
+            ->subject('Acceso al servidor de otro usuario')
             ->greeting('Hola ' . $this->server->user . ',')
             ->line('Has recibido acceso al panel de un servidor. Esto te abre la posibilidad de gestionarlo desde nuestra página:')
             ->line('Nombre del servidor: ' . $this->server->name)
