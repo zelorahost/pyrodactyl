@@ -90,8 +90,7 @@ const AllocationRow = ({ allocation }: Props) => {
     };
 
     const deleteAllocation = () => {
-        if (!confirm('¿Quieres eliminar esta asignación?')) return;
-
+        setShowDeleteDialog(false);
         clearFlashes();
         setDeleteLoading(true);
 
@@ -202,7 +201,7 @@ const AllocationRow = ({ allocation }: Props) => {
                         <ActionButton
                             variant='danger'
                             size='sm'
-                            onClick={deleteAllocation}
+                            onClick={() => setShowDeleteDialog(true)}
                             disabled={allocation.isDefault || deleteLoading}
                             title={
                                 allocation.isDefault ? 'No puedes eliminar la asignación primaria' : 'Eliminar esta asignación'
@@ -218,6 +217,15 @@ const AllocationRow = ({ allocation }: Props) => {
                     </Can>
                 </div>
             </div>
+            <Dialog.Confirm
+                open={showDeleteDialog}
+                onClose={() => setShowDeleteDialog(false)}
+                title={'Delete Allocation'}
+                confirm={'Delete'}
+                onConfirmed={deleteAllocation}
+            >
+                ¿Quieres eliminar esta asignación? Esta acción es irreversible.
+            </Dialog.Confirm>
         </PageListItem>
     );
 };

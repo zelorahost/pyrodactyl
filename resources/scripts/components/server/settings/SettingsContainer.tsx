@@ -56,7 +56,7 @@ const SettingsContainer = () => {
                     </CopyOnClick>
                 </TitledGreyBox>
                 <Can action={'file.sftp'}>
-                    <TitledGreyBox title={'SFTP Details'} className={`mb-6 md:mb-10`}>
+                    <TitledGreyBox title={'Conexión vía SFTP'} className={`mb-6 md:mb-10`}>
                         <div className={`flex items-center justify-between text-sm`}>
                             <Label>Dirección</Label>
                             <CopyOnClick text={`sftp://${ip(sftp.ip)}:${sftp.port}`}>
@@ -77,7 +77,7 @@ const SettingsContainer = () => {
                             <div className={`flex-1`}>
                                 <div className={`border-l-4 border-brand p-3`}>
                                     <p className={`text-xs text-zinc-200`}>
-                                        La contraseña de SFTP es la misma que usas para acceder a este panel.
+                                        La contraseña del servidor SFTP es la misma que usas para acceder a este panel.
                                     </p>
                                 </div>
                             </div>

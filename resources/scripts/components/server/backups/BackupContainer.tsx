@@ -420,7 +420,7 @@ const BackupContainer = () => {
                                             onClick={() => setCreateModalVisible(true)}
                                             disabled={hasActiveOperation}
                                         >
-                                            New Backup
+                                            Nueva copia
                                         </ActionButton>
                                     )}
                             </div>
@@ -591,8 +591,8 @@ const BackupContainer = () => {
                                 <div className='text-sm'>
                                     <p className='font-medium text-red-300'>Aviso</p>
                                     <p className='text-red-400 mt-1'>
-                                    Los archivos de copia de seguridad seleccionados y sus instantáneas se eliminarán 
-                                    permanentemente. No podrás restaurarlos.
+                                        Los archivos de copia de seguridad seleccionados y sus instantáneas se eliminarán
+                                        permanentemente. No podrás restaurarlos.
                                     </p>
                                 </div>
                             </div>
