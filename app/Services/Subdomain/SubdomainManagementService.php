@@ -308,6 +308,7 @@ class SubdomainManagementService
             ];
         }
 
+        // Only allows lowercase letters (a-z), numbers (0-9), and hyphens (-).
         if (!preg_match('/^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/', $subdomain)) {
             return [
                 'available' => false,
@@ -364,6 +365,7 @@ class SubdomainManagementService
             'downloads',
             'dl',
 
+
             // Email & DNS
             'mail',
             'webmail',
@@ -378,6 +380,8 @@ class SubdomainManagementService
             'autoconfig',
             'mta-sts',
             'openpgpkey',
+            'pgp',
+
 
             // Admin & control planes
             'admin',
@@ -397,6 +401,8 @@ class SubdomainManagementService
             'metrics',
             'logs',
             'logging',
+            'console',
+
 
             // Auth & accounts
             'login',
@@ -418,10 +424,15 @@ class SubdomainManagementService
             'password',
 
             // APIs & developer endpoints
+            'v4',//covers api versions up to v4 (such as in cloudflare is v4)
+            'v3',
+            'v2',
+            'v1',
             'api',
             'apis',
             'dev',
             'development',
+            'developer',
             'test',
             'testing',
             'qa',
@@ -440,6 +451,7 @@ class SubdomainManagementService
             'invoices',
             'payments',
             'pay',
+            'buy',
             'store',
             'shop',
             'support',
@@ -471,6 +483,8 @@ class SubdomainManagementService
             'elastic',
             'sonarqube',
             'nexus',
+            'ci',
+            'cd',
 
             // Misc safety
             'localhost',
@@ -479,6 +493,12 @@ class SubdomainManagementService
             'default',
             'undefined',
             'null',
+            's3', // not sure what catagory this would go in
+
+            // popular tools people put on subdomain of same name
+            'n8n',
+            'dokploy',
+            'coolify',
         ]);
     }
 
@@ -610,17 +630,26 @@ class SubdomainManagementService
      */
     private function normalizeIpAddresses(array $dnsRecords, server $server): array
     {
-        $useAlias = $server->node->trust_alias;
+        $useAlias = (bool) $server->node->trust_alias;
+        $allocationIp = $server->allocation->ip;
+        $allocationAlias = $server->allocation->ip_alias;
+
         foreach ($dnsRecords as &$record) {
-            if ($useAlias == 1) {
-                $record['content'] = $server->allocation->ip_alias;
-            } else if ($record['type'] === 'A' && isset($record['content']) && $useAlias == 0) {
-                // Convert localhost to 127.0.0.1 for A records
-                if (strtolower($record['content']) === 'localhost' &&  $useAlias == 0) {
-                    $record['content'] = '127.0.0.1';
-                }
+            if (($record['type'] ?? null) !== 'A' || !array_key_exists('content', $record)) {
+                continue;
+            }
+
+            if ($useAlias) {
+                $record['content'] = !empty($allocationAlias) ? $allocationAlias : $allocationIp;
+                continue;
+            }
+
+            // Convert localhost to 127.0.0.1 for A records
+            if (strtolower($record['content']) === 'localhost') {
+                $record['content'] = '127.0.0.1';
             }
         }
+
         return $dnsRecords;
     }
 
